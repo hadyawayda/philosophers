@@ -37,10 +37,7 @@
 *.hex
 
 # Binaries
-minishell
-michel
-minishell_test
-tester
+philo
 
 # Debug files
 *.dSYM/

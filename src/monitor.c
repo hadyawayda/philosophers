@@ -12,6 +12,21 @@
 
 #include "philo.h"
 
+void log_state(t_philo *p, const char *msg, bool death)
+{
+    long ts;
+
+    pthread_mutex_lock(&p->rules->print);
+    pthread_mutex_lock(&p->rules->sim_lock);
+    if (!p->rules->stop || death)
+    {
+        ts = get_time_ms() - p->rules->start;
+        printf("%ld %d %s\n", ts, p->id, msg);
+    }
+    pthread_mutex_unlock(&p->rules->sim_lock);
+    pthread_mutex_unlock(&p->rules->print);
+}
+
 static bool all_fed(t_rules *r)
 {
     int i = 0;

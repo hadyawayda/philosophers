@@ -33,3 +33,35 @@ int ft_atoi_pos(const char *s, bool *ok)
         return (*ok = false, 0);
     return ((int)res);
 }
+
+long get_time_ms(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
+}
+
+void ft_usleep(long ms)
+{
+    long start = get_time_ms();
+
+    while (get_time_ms() - start < ms)
+        usleep(100);
+}
+
+void free_all(t_rules *r)
+{
+    int i = 0;
+
+    while (i < r->n_philo)
+    {
+        pthread_mutex_destroy(&r->forks[i]);
+        pthread_mutex_destroy(&r->philos[i].lock);
+        i++;
+    }
+    pthread_mutex_destroy(&r->print);
+    pthread_mutex_destroy(&r->sim_lock);
+    free(r->forks);
+    free(r->philos);
+}
