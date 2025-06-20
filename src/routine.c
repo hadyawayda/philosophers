@@ -14,9 +14,9 @@
 
 static void eat(t_philo *p)
 {
-    pthread_mutex_lock(p->left_fork);
+    pthread_mutex_lock(p->first_fork);
     log_state(p, "has taken a fork", false);
-    pthread_mutex_lock(p->right_fork);
+    pthread_mutex_lock(p->second_fork);
     log_state(p, "has taken a fork", false);
     pthread_mutex_lock(&p->lock);
     p->last_meal_time = get_time_ms();
@@ -26,8 +26,8 @@ static void eat(t_philo *p)
     pthread_mutex_lock(&p->lock);
     p->meals_counter++;
     pthread_mutex_unlock(&p->lock);
-    pthread_mutex_unlock(p->right_fork);
-    pthread_mutex_unlock(p->left_fork);
+    pthread_mutex_unlock(p->second_fork);
+    pthread_mutex_unlock(p->first_fork);
 }
 
 void *routine(void *arg)
@@ -59,8 +59,8 @@ static void set_philo(t_table *table, int i)
     p->id        = i + 1;
     p->last_meal_time = table->start_simulation;
     p->meals_counter = 0;
-    p->left_fork    = &table->forks[i].fork;
-    p->right_fork    = &table->forks[(i + 1) % table->philo_nbr].fork;
+    p->first_fork    = &table->forks[i].fork;
+    p->second_fork    = &table->forks[(i + 1) % table->philo_nbr].fork;
     pthread_mutex_init(&p->lock, NULL);
     p->table     = table;
 }

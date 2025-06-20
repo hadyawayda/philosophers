@@ -79,8 +79,8 @@ typedef struct s_philo
 	bool			full;
 	long			last_meal_time;
 	pthread_t		thread_id;
-	t_mutex			*left_fork;
-	t_mutex			*right_fork;
+	t_mutex			*first_fork;
+	t_mutex			*second_fork;
 	t_table			*table;
 	t_mutex			lock;
 }					t_philo;
@@ -121,5 +121,6 @@ void	free_all(t_table *table);
 void	error_exit(const char *error);
 void	parse_input(t_table *table, char **av);
 void	safe_thread_handler(pthread_t *thread, void *(*f)(void *), void *data, t_opcode opcode);
+void	data_init(t_table *table);
 
 #endif
