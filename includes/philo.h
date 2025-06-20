@@ -13,63 +13,81 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-# include <pthread.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <sys/time.h>
-
-# include <pthread.h>
-# include <sys/time.h>
-# include <stdbool.h>
-# include <stdlib.h>
-# include <stdio.h>
-# include <unistd.h>
 # include <limits.h>
+# include <pthread.h>
+# include <stdbool.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <sys/time.h>
+# include <unistd.h>
 
-typedef struct s_rules  t_rules;
+/*
+ * Structures
+*/
+typedef pthread_mutex_t t_mutex;
 
+/*
+* Forward declaration
+*/
+typedef struct s_table t_table;
+
+/*
+ * Fork
+*/
+typedef struct s_fork
+{
+	t_mutex			fork;
+	int				fork_id;
+}					t_fork;
+
+/*
+ * Philo
+*/
 typedef struct s_philo
 {
-	int             id;
-	long            last_meal;
-	int             meals;
-	pthread_t       thread;
-	pthread_mutex_t *l_fork;
-	pthread_mutex_t *r_fork;
-	pthread_mutex_t lock;
-	t_rules         *rules;
-}   t_philo;
+	int				id;
+	long			meals_counter;
+	bool			full;
+	long			last_meal_time;
+	pthread_t		thread_id;
+	t_mutex			*left_fork;
+	t_mutex			*right_fork;
+	t_table			*table;
+	t_mutex			lock;
+}					t_philo;
 
-struct s_rules
+/*
+ * table
+*/
+struct s_table
 {
-	int             n_philo;
-	int             t_die;
-	int             t_eat;
-	int             t_sleep;
-	int             must_eat;
-	long            start;
-	bool            stop;
-	pthread_mutex_t print;
-	pthread_mutex_t sim_lock;
-	pthread_mutex_t *forks;
-	t_philo         *philos;
+	long			philo_nbr;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	long			must_eat;
+	long			start_simulation;
+	bool			end_simulation;
+	t_fork			*forks;
+	t_philo			*philos;
+	t_mutex			print;
+	t_mutex			sim_lock;
 };
 
-bool	parse_args(int ac, char **av, t_rules *r);
-bool	init_sim(t_rules *r);
+bool	parse_args(int ac, char **av, t_table *r);
+bool	init_sim(t_table *r);
 
-int		one_philo_case(t_rules *r);
+int		one_philo_case(t_table *r);
 int		main(int ac, char **av);
 int		ft_atoi_pos(const char *s, bool *ok);
 
 long	get_time_ms(void);
 
-void	wait_end(t_rules *r);
+void	wait_end(t_table *r);
 void	*routine(void *arg);
-void	monitor(t_rules *r);
+void	monitor(t_table *r);
 void	ft_usleep(long ms);
 void	log_state(t_philo *p, const char *msg, bool death);
-void	free_all(t_rules *r);
+void	free_all(t_table *r);
 
 #endif

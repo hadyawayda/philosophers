@@ -44,19 +44,19 @@ long get_time_ms(void)
 
 void ft_usleep(long ms)
 {
-    long start = get_time_ms();
+    long start_simulation = get_time_ms();
 
-    while (get_time_ms() - start < ms)
+    while (get_time_ms() - start_simulation < ms)
         usleep(100);
 }
 
-void free_all(t_rules *r)
+void free_all(t_table *r)
 {
     int i = 0;
 
-    while (i < r->n_philo)
+    while (i < r->philo_nbr)
     {
-        pthread_mutex_destroy(&r->forks[i]);
+        pthread_mutex_destroy(&r->forks[i].fork);
         pthread_mutex_destroy(&r->philos[i].lock);
         i++;
     }
