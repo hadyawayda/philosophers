@@ -12,56 +12,40 @@
 
 #include "philo.h"
 
-int ft_atoi_pos(const char *s, bool *ok)
-{
-    long res = 0;
-
-    while (*s == ' ' || (*s >= 9 && *s <= 13))
-        s++;
-    if (*s == '+')
-        s++;
-    if (*s < '0' || *s > '9')
-        return (*ok = false, 0);
-    while (*s >= '0' && *s <= '9')
-    {
-        res = res * 10 + (*s - '0');
-        if (res > INT_MAX)
-            return (*ok = false, 0);
-        s++;
-    }
-    if (*s != '\0')
-        return (*ok = false, 0);
-    return ((int)res);
-}
-
 long get_time_ms(void)
 {
-    struct timeval tv;
+	struct timeval tv;
 
-    gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
 }
 
 void ft_usleep(long ms)
 {
-    long start_simulation = get_time_ms();
+	long start_simulation = get_time_ms();
 
-    while (get_time_ms() - start_simulation < ms)
-        usleep(100);
+	while (get_time_ms() - start_simulation < ms)
+		usleep(100);
 }
 
-void free_all(t_table *r)
+void free_all(t_table *table)
 {
-    int i = 0;
+	int i = 0;
 
-    while (i < r->philo_nbr)
-    {
-        pthread_mutex_destroy(&r->forks[i].fork);
-        pthread_mutex_destroy(&r->philos[i].lock);
-        i++;
-    }
-    pthread_mutex_destroy(&r->print);
-    pthread_mutex_destroy(&r->sim_lock);
-    free(r->forks);
-    free(r->philos);
+	while (i < table->philo_nbr)
+	{
+		pthread_mutex_destroy(&table->forks[i].fork);
+		pthread_mutex_destroy(&table->philos[i].lock);
+		i++;
+	}
+	pthread_mutex_destroy(&table->print);
+	pthread_mutex_destroy(&table->sim_lock);
+	free(table->forks);
+	free(table->philos);
+}
+
+void    error_exit(const char *error)
+{
+	printf(RED"%s\n"RESET, error);
+	exit(EXIT_FAILURE);
 }

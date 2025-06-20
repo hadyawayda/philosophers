@@ -52,54 +52,54 @@ void *routine(void *arg)
     return (NULL);
 }
 
-static void set_philo(t_table *r, int i)
+static void set_philo(t_table *table, int i)
 {
-    t_philo *p = &r->philos[i];
+    t_philo *p = &table->philos[i];
 
     p->id        = i + 1;
-    p->last_meal_time = r->start_simulation;
+    p->last_meal_time = table->start_simulation;
     p->meals_counter = 0;
-    p->left_fork    = &r->forks[i].fork;
-    p->right_fork    = &r->forks[(i + 1) % r->philo_nbr].fork;
+    p->left_fork    = &table->forks[i].fork;
+    p->right_fork    = &table->forks[(i + 1) % table->philo_nbr].fork;
     pthread_mutex_init(&p->lock, NULL);
-    p->table     = r;
+    p->table     = table;
 }
 
-static bool create_threads(t_table *r)
+static bool create_threads(t_table *table)
 {
     int i = 0;
 
-    while (i < r->philo_nbr)
+    while (i < table->philo_nbr)
     {
-        if (pthread_create(&r->philos[i].thread_id, NULL,
-                routine, &r->philos[i]))
+        if (pthread_create(&table->philos[i].thread_id, NULL,
+                routine, &table->philos[i]))
             return (false);
         i += 2;
-        if (i >= r->philo_nbr)
+        if (i >= table->philo_nbr)
             i = 1;
     }
     return (true);
 }
 
-bool init_sim(t_table *r)
+bool init_sim(t_table *table)
 {
     int i;
 
-    r->start_simulation = get_time_ms();
-    r->end_simulation  = false;
-    pthread_mutex_init(&r->print, NULL);
-    pthread_mutex_init(&r->sim_lock, NULL);
-    r->forks  = malloc(sizeof(pthread_mutex_t) * r->philo_nbr);
-    r->philos = malloc(sizeof(t_philo) * r->philo_nbr);
-    if (!r->forks || !r->philos)
+    table->start_simulation = get_time_ms();
+    table->end_simulation  = false;
+    pthread_mutex_init(&table->print, NULL);
+    pthread_mutex_init(&table->sim_lock, NULL);
+    table->forks  = malloc(sizeof(pthread_mutex_t) * table->philo_nbr);
+    table->philos = malloc(sizeof(t_philo) * table->philo_nbr);
+    if (!table->forks || !table->philos)
         return (false);
     i = -1;
-    while (++i < r->philo_nbr)
-        pthread_mutex_init(&r->forks[i].fork, NULL);
+    while (++i < table->philo_nbr)
+        pthread_mutex_init(&table->forks[i].fork, NULL);
     i = -1;
-    while (++i < r->philo_nbr)
-        set_philo(r, i);
-    if (!create_threads(r))
+    while (++i < table->philo_nbr)
+        set_philo(table, i);
+    if (!create_threads(table))
         return (false);
     return (true);
 }
