@@ -6,15 +6,16 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 15:19:37 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 22:02:52 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 23:32:25 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static bool	simulation_finished(t_table *table)
+void	wait_all_threads(t_table *table)
 {
-	return (get_bool(&table->table_mutex, &table->end_simulation));
+	while (!get_bool(&table->table_mutex, &table->all_threads_ready))
+		;
 }
 
 long	get_time_ms(t_time_code time_code)
@@ -53,23 +54,6 @@ void	precise_usleep(t_table *table, long usec)
 			while (get_time_ms(MICROSECOND) - start < usec)
 				;
 	}
-}
-
-void	free_all(t_table *table)
-{
-	int	i;
-
-	i = 0;
-	while (i < table->philo_nbr)
-	{
-		pthread_mutex_destroy(&table->forks[i].fork);
-		pthread_mutex_destroy(&table->philos[i].lock);
-		i++;
-	}
-	pthread_mutex_destroy(&table->print);
-	pthread_mutex_destroy(&table->sim_lock);
-	free(table->forks);
-	free(table->philos);
 }
 
 void	error_exit(const char *error)

@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 18:38:45 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 22:07:47 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/25 00:01:42 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,13 @@ static void	handle_mutex_error(t_opcode opcode, int status)
 void	safe_mutex_handler(t_mutex *mutex, t_opcode opcode)
 {
 	if (LOCK == opcode)
-		handle_mutex_error(pthread_mutex_lock(mutex), opcode);
+		handle_mutex_error(opcode, pthread_mutex_lock(mutex));
 	else if (UNLOCK == opcode)
-		handle_mutex_error(pthread_mutex_unlock(mutex), opcode);
+		handle_mutex_error(opcode, pthread_mutex_unlock(mutex));
 	else if (INIT == opcode)
-		handle_mutex_error(pthread_mutex_init(mutex, NULL), opcode);
+		handle_mutex_error(opcode, pthread_mutex_init(mutex, NULL));
 	else if (DESTROY == opcode)
-		handle_mutex_error(pthread_mutex_destroy(mutex), opcode);
+		handle_mutex_error(opcode, pthread_mutex_destroy(mutex));
 	else
 		error_exit("Invalid mutex operation code.\n");
 }

@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 17:51:31 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 22:02:30 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 22:24:24 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static const char	*validate_input(const char *str)
 	if (!is_digit(*str))
 		error_exit("The input is not a correct digit\n");
 	num = str;
-	while (is_digit(*str))
+	while (is_digit(*str++))
 		len++;
 	if (len > 10)
 		error_exit("The value is too big, INT_MAX is the limit");

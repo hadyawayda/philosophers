@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 10:33:26 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 22:02:26 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 22:12:53 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	set_long(t_mutex *mutex, long *dest, long value)
 	safe_mutex_handler(mutex, UNLOCK);
 }
 
-bool	sumulation_finished(t_table *table)
+bool	simulation_finished(t_table *table)
 {
 	return (get_bool(&table->table_mutex, &table->end_simulation));
 }

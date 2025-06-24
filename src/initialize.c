@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 18:15:11 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 22:02:28 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 23:57:05 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static void	philo_init(t_table *table)
 		philo->full = false;
 		philo->meals_counter = 0;
 		philo->table = table;
-		safe_mutex_handler(philo->philo_mutex, INIT);
+		safe_mutex_handler(&philo->philo_mutex, INIT);
 		assign_forks(philo, table->forks, i);
 	}
 }

@@ -6,15 +6,15 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 10:22:48 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 22:04:26 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 23:40:32 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static bool	simulation_finished(t_table *table)
+static void	philo_think(t_philo *philo)
 {
-	return (get_bool(&table->table_mutex, &table->end_simulation));
+	write_status(philo, THINKING, DEBUG_MODE);
 }
 
 static void	philo_eat(t_philo *philo)
@@ -23,14 +23,16 @@ static void	philo_eat(t_philo *philo)
 	write_status(philo, TAKE_FIRST_FORK, DEBUG_MODE);
 	safe_mutex_handler(&philo->second_fork->fork, LOCK);
 	write_status(philo, TAKE_SECOND_FORK, DEBUG_MODE);
-	set_long(philo->philo_mutex, &philo->last_meal_time,
+	set_long(&philo->philo_mutex, &philo->last_meal_time,
 		get_time_ms(MILLISECOND));
 	philo->meals_counter += 1;
 	write_status(philo, EATING, DEBUG_MODE);
 	precise_usleep(philo->table, philo->table->time_to_eat);
 	if (philo->table->meals_limit > 0
 		&& philo->meals_counter == philo->table->meals_limit)
-		set_bool(philo->philo_mutex, &philo->full, true);
+		set_bool(&philo->philo_mutex, &philo->full, true);
+	safe_mutex_handler(&philo->first_fork->fork, UNLOCK);
+	safe_mutex_handler(&philo->second_fork->fork, UNLOCK);
 }
 
 void	*dinner_simulation(void *data)
@@ -46,7 +48,7 @@ void	*dinner_simulation(void *data)
 		philo_eat(philo);
 		write_status(philo, SLEEPING, DEBUG_MODE);
 		precise_usleep(philo->table, philo->table->time_to_sleep);
-		// philo_think(philo);
+		philo_think(philo);
 	}
 	return (NULL);
 }

@@ -102,12 +102,12 @@ typedef struct s_philo
 {
 	int					id;
 	long				meals_counter;
-	bool				full;
 	long				last_meal_time;
+	bool				full;
 	t_fork				*first_fork;
 	t_fork				*second_fork;
 	pthread_t			thread_id;
-	t_mutex				*philo_mutex;
+	t_mutex				philo_mutex;
 	t_table				*table;
 	t_mutex				lock;
 }						t_philo;
@@ -136,7 +136,7 @@ struct					s_table
 
 bool					init_sim(t_table *table);
 bool					get_bool(t_mutex *mutex, bool *value);
-bool					sumulation_finished(t_table *table);
+bool					simulation_finished(t_table *table);
 
 int						one_philo_case(t_table *table);
 int						main(int ac, char **av);
@@ -150,7 +150,6 @@ void					*routine(void *arg);
 void					monitor(t_table *table);
 void					ft_usleep(long ms);
 void					log_state(t_philo *p, const char *msg, bool death);
-void					free_all(t_table *table);
 void					error_exit(const char *error);
 void					parse_input(t_table *table, char **av);
 void					safe_thread_handler(pthread_t *thread,
