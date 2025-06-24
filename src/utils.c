@@ -6,20 +6,20 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 15:19:37 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/17 15:19:37 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 22:02:52 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-bool	simulation_finished(t_table *table)
+static bool	simulation_finished(t_table *table)
 {
 	return (get_bool(&table->table_mutex, &table->end_simulation));
 }
 
-long get_time_ms(t_time_code time_code)
+long	get_time_ms(t_time_code time_code)
 {
-	struct timeval tv;
+	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL))
 		error_exit("Error in get_time_ms");
@@ -50,15 +50,16 @@ void	precise_usleep(t_table *table, long usec)
 		if (remaining > 1e3)
 			usleep(usec / 2);
 		else
-			while(get_time_ms(MICROSECOND) - start < usec)
+			while (get_time_ms(MICROSECOND) - start < usec)
 				;
 	}
 }
 
-void free_all(t_table *table)
+void	free_all(t_table *table)
 {
-	int i = 0;
+	int	i;
 
+	i = 0;
 	while (i < table->philo_nbr)
 	{
 		pthread_mutex_destroy(&table->forks[i].fork);
@@ -71,8 +72,8 @@ void free_all(t_table *table)
 	free(table->philos);
 }
 
-void    error_exit(const char *error)
+void	error_exit(const char *error)
 {
-	printf(RED"%s\n"RST, error);
+	printf(RED "%s\n" RST, error);
 	exit(EXIT_FAILURE);
 }

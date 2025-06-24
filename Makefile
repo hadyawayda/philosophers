@@ -72,3 +72,12 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
+
+leaks:
+		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME)
+
+qleaks:
+		@valgrind -q --leak-check=full ./$(NAME)
+
+norm:
+		@norminette | grep Error || true

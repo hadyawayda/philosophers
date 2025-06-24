@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 18:38:45 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/20 18:38:45 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/24 22:07:47 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,13 @@ static void	handle_mutex_error(t_opcode opcode, int status)
 	else if (EINVAL == status && INIT == opcode)
 		error_exit("The value specified by mutex is invalid.\n");
 	else if (EDEADLK == status)
-		error_exit("A deadlock would occur if the thread blocked waiting for mutex.\n");
+		error_exit("A deadlock would occur if the thread blocked \
+			waiting for mutex.\n");
 	else if (EPERM == status)
 		error_exit("The current thread does not hold a lock on mutex.\n");
 	else if (ENOMEM == status)
-		error_exit("The process cannot allocate enough memory to create another mutex.\n");
+		error_exit("The process cannot allocate enough memory to \
+			create another mutex.\n");
 	else if (EBUSY == status)
 		error_exit("Mutex is locked.\n");
 }
@@ -69,10 +71,12 @@ static void	handle_thread_error(int status, t_opcode opcode)
 	else if (ESRCH == status)
 		error_exit("The thread does not exist.\n");
 	else if (EDEADLK == status)
-		error_exit("A deadlock would occur if the thread blocked waiting for another thread.\n");
+		error_exit("A deadlock would occur if the thread blocked waiting \
+			for another thread.\n");
 }
 
-void	safe_thread_handler(pthread_t *thread, void *(*f)(void *), void *data, t_opcode opcode)
+void	safe_thread_handler(pthread_t *thread, void *(*f)(void *), void *data,
+		t_opcode opcode)
 {
 	if (CREATE == opcode)
 		handle_thread_error(pthread_create(thread, NULL, f, data), opcode);
