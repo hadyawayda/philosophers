@@ -12,20 +12,47 @@
 
 #include "philo.h"
 
-long get_time_ms(void)
+bool	simulation_finished(t_table *table)
+{
+	return (get_bool(&table->table_mutex, &table->end_simulation));
+}
+
+long get_time_ms(t_time_code time_code)
 {
 	struct timeval tv;
 
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
+	if (gettimeofday(&tv, NULL))
+		error_exit("Error in get_time_ms");
+	if (SECOND == time_code)
+		return (tv.tv_sec + (tv.tv_usec / 1e6));
+	else if (MILLISECOND == time_code)
+		return (tv.tv_sec * 1e3 + tv.tv_usec / 1e3);
+	else if (MICROSECOND == time_code)
+		return (tv.tv_sec * 1e6 + tv.tv_usec);
+	else
+		error_exit("Unknown time_code");
+	return (1337);
 }
 
-void ft_usleep(long ms)
+void	precise_usleep(t_table *table, long usec)
 {
-	long start_simulation = get_time_ms();
+	long	start;
+	long	elapsed;
+	long	remaining;
 
-	while (get_time_ms() - start_simulation < ms)
-		usleep(100);
+	start = get_time_ms(MICROSECOND);
+	while (get_time_ms(MICROSECOND) - start < usec)
+	{
+		if (simulation_finished(table))
+			break ;
+		elapsed = get_time_ms(MICROSECOND) - start;
+		remaining = usec - elapsed;
+		if (remaining > 1e3)
+			usleep(usec / 2);
+		else
+			while(get_time_ms(MICROSECOND) - start < usec)
+				;
+	}
 }
 
 void free_all(t_table *table)
@@ -46,6 +73,6 @@ void free_all(t_table *table)
 
 void    error_exit(const char *error)
 {
-	printf(RED"%s\n"RESET, error);
+	printf(RED"%s\n"RST, error);
 	exit(EXIT_FAILURE);
 }

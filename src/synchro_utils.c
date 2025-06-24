@@ -1,28 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   colors.h                                           :+:      :+:    :+:   */
+/*   synchro_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/20 16:20:31 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/20 16:20:31 by hawayda          ###   ########.fr       */
+/*   Created: 2025/06/24 10:39:54 by hawayda           #+#    #+#             */
+/*   Updated: 2025/06/24 10:39:54 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef COLORS_H
-# define COLORS_H
+#include "philo.h"
 
-// Reset
-#define RESET		"\033[0m"
-
-// Bold (bright) colors
-#define RED			"\033[1;31m"
-#define GREEN		"\033[1;32m"
-#define YELLOW		"\033[1;33m"
-#define BLUE		"\033[1;34m"
-#define MAGENTA		"\033[1;35m"
-#define CYAN		"\033[1;36m"
-#define WHITE		"\033[1;37m"
-
-#endif
+void	wait_all_threads(t_table *table)
+{
+	while(!get_bool(&table->table_mutex, &table->all_threads_ready))
+		;
+}

@@ -15,14 +15,14 @@
 static void eat(t_philo *p)
 {
     pthread_mutex_lock(p->first_fork);
-    log_state(p, "has taken a fork", false);
+    // log_state(p, "has taken a fork", false);
     pthread_mutex_lock(p->second_fork);
-    log_state(p, "has taken a fork", false);
+    // log_state(p, "has taken a fork", false);
     pthread_mutex_lock(&p->lock);
-    p->last_meal_time = get_time_ms();
+    // p->last_meal_time = get_time_ms();
     pthread_mutex_unlock(&p->lock);
-    log_state(p, "is eating", false);
-    ft_usleep(p->table->time_to_eat);
+    // log_state(p, "is eating", false);
+    // ft_usleep(p->table->time_to_eat);
     pthread_mutex_lock(&p->lock);
     p->meals_counter++;
     pthread_mutex_unlock(&p->lock);
@@ -45,9 +45,9 @@ void *routine(void *arg)
             return (pthread_mutex_unlock(&p->table->sim_lock), NULL);
         pthread_mutex_unlock(&p->table->sim_lock);
         eat(p);
-        log_state(p, "is sleeping", false);
+        // log_state(p, "is sleeping", false);
         ft_usleep(p->table->time_to_sleep);
-        log_state(p, "is thinking", false);
+        // log_state(p, "is thinking", false);
     }
     return (NULL);
 }
@@ -85,7 +85,7 @@ bool init_sim(t_table *table)
 {
     int i;
 
-    table->start_simulation = get_time_ms();
+    // table->start_simulation = get_time_ms();
     table->end_simulation  = false;
     pthread_mutex_init(&table->print, NULL);
     pthread_mutex_init(&table->sim_lock, NULL);
