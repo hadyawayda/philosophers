@@ -60,8 +60,8 @@ void	parse_input(t_table *table, char **av)
 	table->time_to_die = ft_atol(av[2]) * 1000;
 	table->time_to_eat = ft_atol(av[3]) * 1000;
 	table->time_to_sleep = ft_atol(av[4]) * 1000;
-	if (table->time_to_die < 60 || table->time_to_eat < 60
-		|| table->time_to_sleep < 60)
+	if (table->time_to_die < 6e4 || table->time_to_eat < 6e4
+		|| table->time_to_sleep < 6e4)
 		error_exit("The timestamps must be at least 60ms.\n");
 	if (av[5])
 		table->meals_limit = ft_atol(av[5]);

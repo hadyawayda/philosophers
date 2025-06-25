@@ -37,7 +37,7 @@
 /*
  * Write function macro
  */
-# define DEBUG_MODE 0
+# define DEBUG_MODE 1
 
 /***
  * OPCODE for mutex | thread functions
@@ -109,7 +109,6 @@ typedef struct s_philo
 	pthread_t			thread_id;
 	t_mutex				philo_mutex;
 	t_table				*table;
-	t_mutex				lock;
 }						t_philo;
 
 /*
@@ -124,38 +123,30 @@ struct					s_table
 	long				meals_limit;
 	long				must_eat;
 	long				start_simulation;
+	long				threads_running_nbr;
 	bool				all_threads_ready;
 	bool				end_simulation;
+	pthread_t			monitor;
 	t_mutex				table_mutex;
 	t_mutex				write_mutex;
 	t_fork				*forks;
 	t_philo				*philos;
-	t_mutex				print;
-	t_mutex				sim_lock;
 };
 
-bool					init_sim(t_table *table);
 bool					get_bool(t_mutex *mutex, bool *value);
 bool					simulation_finished(t_table *table);
+bool					all_threads_running(t_mutex *mutex, long *threads, long philo_nbr);
 
-int						one_philo_case(t_table *table);
 int						main(int ac, char **av);
 
-long					ft_atol_pos(const char *s);
 long					get_time_ms(t_time_code time_code);
 long					get_long(t_mutex *mutex, long *value);
 
-void					wait_end(t_table *table);
-void					*routine(void *arg);
-void					monitor(t_table *table);
-void					ft_usleep(long ms);
-void					log_state(t_philo *p, const char *msg, bool death);
 void					error_exit(const char *error);
 void					parse_input(t_table *table, char **av);
 void					safe_thread_handler(pthread_t *thread,
 							void *(*f)(void *), void *data, t_opcode opcode);
 void					data_init(t_table *table);
-void					*safe_malloc(size_t size);
 void					safe_mutex_handler(t_mutex *mutex, t_opcode opcode);
 void					safe_thread_handler(pthread_t *thread,
 							void *(*f)(void *), void *data, t_opcode opcode);
@@ -166,5 +157,11 @@ void					wait_all_threads(t_table *table);
 void					precise_usleep(t_table *table, long usec);
 void					write_status(t_philo *philo, t_philo_status status,
 							bool debug);
+void					increase_long(t_mutex *mutex, long *value);
+void					philo_think(t_philo *philo, bool pre_simulation);
+void					desyncrhonize_philos(t_philo *philo);
+
+void					*safe_malloc(size_t size);
+void					*monitor_dinner(void *data);
 
 #endif

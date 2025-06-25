@@ -12,9 +12,36 @@
 
 #include "philo.h"
 
-static void	philo_think(t_philo *philo)
+void	philo_think(t_philo *philo, bool pre_simulation)
 {
-	write_status(philo, THINKING, DEBUG_MODE);
+	long	t_eat;
+	long	t_sleep;
+	long	t_think;
+
+	if (!pre_simulation)
+		write_status(philo, THINKING, DEBUG_MODE);
+	if (philo->table->philo_nbr % 2 == 0)
+		return ;
+	t_eat = philo->table->time_to_eat;
+	t_sleep = philo->table->time_to_sleep;
+	t_think = t_eat * 2 - t_sleep;
+	if (t_think < 0)
+		t_think = 0;
+	precise_usleep(philo->table, t_think * 0.42);
+}
+
+void	*lone_philo(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+	wait_all_threads(philo->table);
+	set_long(&philo->philo_mutex, &philo->last_meal_time, get_time_ms(MILLISECOND));
+	increase_long(&philo->table->table_mutex, &philo->table->threads_running_nbr);
+	write_status(philo, TAKE_FIRST_FORK, DEBUG_MODE);
+	while (!simulation_finished(philo->table))
+		usleep(200);
+	return (NULL);
 }
 
 static void	philo_eat(t_philo *philo)
@@ -41,6 +68,9 @@ void	*dinner_simulation(void *data)
 
 	philo = (t_philo *)data;
 	wait_all_threads(philo->table);
+	set_long(&philo->philo_mutex, &philo->last_meal_time, get_time_ms(MILLISECOND));
+	increase_long(&philo->table->table_mutex, &philo->table->threads_running_nbr);
+	desyncrhonize_philos(philo);
 	while (!simulation_finished(philo->table))
 	{
 		if (philo->full)
@@ -48,7 +78,7 @@ void	*dinner_simulation(void *data)
 		philo_eat(philo);
 		write_status(philo, SLEEPING, DEBUG_MODE);
 		precise_usleep(philo->table, philo->table->time_to_sleep);
-		philo_think(philo);
+		philo_think(philo, false);
 	}
 	return (NULL);
 }
@@ -61,16 +91,20 @@ void	dinner_start(t_table *table)
 	if (0 == table->meals_limit)
 		return ;
 	else if (1 == table->philo_nbr)
-		return ;
+		safe_thread_handler(&table->philos[0].thread_id, lone_philo,
+			&table->philos[0], CREATE);
 	else
 	{
 		while (++i < table->philo_nbr)
 			safe_thread_handler(&table->philos[i].thread_id, dinner_simulation,
 				&table->philos[i], CREATE);
 	}
+	safe_thread_handler(&table->monitor, monitor_dinner, table, CREATE);
 	table->start_simulation = get_time_ms(MILLISECOND);
 	set_bool(&table->table_mutex, &table->all_threads_ready, true);
 	i = -1;
 	while (++i < table->philo_nbr)
 		safe_thread_handler(&table->philos[i].thread_id, NULL, NULL, JOIN);
+	set_bool(&table->table_mutex, &table->end_simulation, true);
+	safe_thread_handler(&table->monitor, NULL, NULL, JOIN);
 }

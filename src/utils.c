@@ -18,6 +18,33 @@ void	wait_all_threads(t_table *table)
 		;
 }
 
+/*
+ * Monitor busy waits until
+ * all threads are not running
+*/
+bool	all_threads_running(t_mutex *mutex, long *threads, long philo_nbr)
+{
+	bool	ret;
+
+	ret = false;
+	safe_mutex_handler(mutex, LOCK);
+	if (*threads == philo_nbr)
+		ret = true;
+	safe_mutex_handler(mutex, UNLOCK);
+	return (ret);
+}
+
+/*
+ * Increase threads running
+ * to synchronize with the monitor
+*/
+void	increase_long(t_mutex *mutex, long *value)
+{
+	safe_mutex_handler(mutex, LOCK);
+	(*value)++;
+	safe_mutex_handler(mutex, UNLOCK);
+}
+
 long	get_time_ms(t_time_code time_code)
 {
 	struct timeval	tv;
@@ -49,7 +76,7 @@ void	precise_usleep(t_table *table, long usec)
 		elapsed = get_time_ms(MICROSECOND) - start;
 		remaining = usec - elapsed;
 		if (remaining > 1e3)
-			usleep(usec / 2);
+			usleep(remaining / 2);
 		else
 			while (get_time_ms(MICROSECOND) - start < usec)
 				;
