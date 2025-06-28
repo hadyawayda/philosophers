@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 10:22:48 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 23:40:32 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/29 02:46:46 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,14 @@ void	*lone_philo(void *arg)
 
 	philo = (t_philo *)arg;
 	wait_all_threads(philo->table);
-	set_long(&philo->philo_mutex, &philo->last_meal_time, get_time_ms(MILLISECOND));
-	increase_long(&philo->table->table_mutex, &philo->table->threads_running_nbr);
+	set_long(&philo->philo_mutex, &philo->last_meal_time,
+		get_time_ms(MILLISECOND));
+	increase_long(&philo->table->table_mutex,
+		&philo->table->threads_running_nbr);
 	write_status(philo, TAKE_FIRST_FORK, DEBUG_MODE);
-	while (!simulation_finished(philo->table))
-		usleep(200);
+	precise_usleep(philo->table, philo->table->time_to_die);
+	write_status(philo, DIED, DEBUG_MODE);
+	set_bool(&philo->table->table_mutex, &philo->table->end_simulation, true);
 	return (NULL);
 }
 
@@ -68,8 +71,10 @@ void	*dinner_simulation(void *data)
 
 	philo = (t_philo *)data;
 	wait_all_threads(philo->table);
-	set_long(&philo->philo_mutex, &philo->last_meal_time, get_time_ms(MILLISECOND));
-	increase_long(&philo->table->table_mutex, &philo->table->threads_running_nbr);
+	set_long(&philo->philo_mutex, &philo->last_meal_time,
+		get_time_ms(MILLISECOND));
+	increase_long(&philo->table->table_mutex,
+		&philo->table->threads_running_nbr);
 	desyncrhonize_philos(philo);
 	while (!simulation_finished(philo->table))
 	{
@@ -98,13 +103,13 @@ void	dinner_start(t_table *table)
 		while (++i < table->philo_nbr)
 			safe_thread_handler(&table->philos[i].thread_id, dinner_simulation,
 				&table->philos[i], CREATE);
+		safe_thread_handler(&table->monitor, monitor_dinner, table, CREATE);
+		table->start_simulation = get_time_ms(MILLISECOND);
+		set_bool(&table->table_mutex, &table->all_threads_ready, true);
+		i = -1;
+		while (++i < table->philo_nbr)
+			safe_thread_handler(&table->philos[i].thread_id, NULL, NULL, JOIN);
+		set_bool(&table->table_mutex, &table->end_simulation, true);
+		safe_thread_handler(&table->monitor, NULL, NULL, JOIN);
 	}
-	safe_thread_handler(&table->monitor, monitor_dinner, table, CREATE);
-	table->start_simulation = get_time_ms(MILLISECOND);
-	set_bool(&table->table_mutex, &table->all_threads_ready, true);
-	i = -1;
-	while (++i < table->philo_nbr)
-		safe_thread_handler(&table->philos[i].thread_id, NULL, NULL, JOIN);
-	set_bool(&table->table_mutex, &table->end_simulation, true);
-	safe_thread_handler(&table->monitor, NULL, NULL, JOIN);
 }
