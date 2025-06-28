@@ -56,7 +56,7 @@ void	write_status(t_philo *philo, t_philo_status status, bool debug)
 			printf(W "%-6ld" RST " %d is sleeping\n" RST, elapsed, philo->id);
 		else if (THINKING == status && !simulation_finished(philo->table))
 			printf(W "%-6ld" RST " %d is thinking\n" RST, elapsed, philo->id);
-		else if (DIED == status && !simulation_finished(philo->table))
+		else if (DIED == status)
 			printf(RED "%-6ld %d died\n" RST, elapsed, philo->id);
 	}
 	safe_mutex_handler(&philo->table->write_mutex, UNLOCK);
