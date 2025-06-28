@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 10:58:40 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/25 10:58:40 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/29 02:02:23 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ static bool	philo_died(t_philo *philo)
 
 	if (get_bool(&philo->philo_mutex, &philo->full))
 		return (false);
-	elapsed = get_time_ms(MILLISECOND) - get_long(&philo->philo_mutex, &philo->last_meal_time);
+	elapsed = get_time_ms(MILLISECOND) - get_long(&philo->philo_mutex,
+			&philo->last_meal_time);
 	t_to_die = philo->table->time_to_die / 1e3;
 	if (elapsed > t_to_die)
 		return (true);
@@ -32,7 +33,8 @@ void	*monitor_dinner(void *data)
 	t_table	*table;
 
 	table = (t_table *)data;
-	while (!all_threads_running(&table->table_mutex, &table->threads_running_nbr, table->philo_nbr))
+	while (!all_threads_running(&table->table_mutex,
+			&table->threads_running_nbr, table->philo_nbr))
 		;
 	while (!simulation_finished(table))
 	{
@@ -41,7 +43,7 @@ void	*monitor_dinner(void *data)
 		{
 			if (philo_died(table->philos + i))
 			{
-				set_bool(&table->table_mutex, &table->end_simulation, true);				
+				set_bool(&table->table_mutex, &table->end_simulation, true);
 				write_status(table->philos + i, DIED, DEBUG_MODE);
 			}
 		}

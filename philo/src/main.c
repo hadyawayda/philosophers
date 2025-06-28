@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 15:17:55 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 23:55:10 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/29 02:46:57 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ void	desyncrhonize_philos(t_philo *philo)
 			philo_think(philo, true);
 	}
 }
+
 void	clean(t_table *table)
 {
 	t_philo	*philo;
@@ -47,7 +48,8 @@ int	main(int ac, char **av)
 	t_table	table;
 
 	if (ac != 5 && ac != 6)
-		error_exit("Error: invalid arguments\n" G "Correct usage: ./philo 5 800 200 200 [5]" RST);
+		error_exit("Error: invalid arguments\n" G \
+			"Correct usage: ./philo 5 800 200 200 [5]" RST);
 	parse_input(&table, av);
 	data_init(&table);
 	dinner_start(&table);

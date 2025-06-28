@@ -135,7 +135,8 @@ struct					s_table
 
 bool					get_bool(t_mutex *mutex, bool *value);
 bool					simulation_finished(t_table *table);
-bool					all_threads_running(t_mutex *mutex, long *threads, long philo_nbr);
+bool					all_threads_running(t_mutex *mutex, long *threads,
+							long philo_nbr);
 
 int						main(int ac, char **av);
 

@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 15:19:37 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 23:32:25 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/06/29 02:02:30 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	wait_all_threads(t_table *table)
 /*
  * Monitor busy waits until
  * all threads are not running
-*/
+ */
 bool	all_threads_running(t_mutex *mutex, long *threads, long philo_nbr)
 {
 	bool	ret;
@@ -37,7 +37,7 @@ bool	all_threads_running(t_mutex *mutex, long *threads, long philo_nbr)
 /*
  * Increase threads running
  * to synchronize with the monitor
-*/
+ */
 void	increase_long(t_mutex *mutex, long *value)
 {
 	safe_mutex_handler(mutex, LOCK);
