@@ -33,14 +33,29 @@ void	philo_think(t_philo *philo, bool pre_simulation)
 void	*lone_philo(void *arg)
 {
 	t_philo	*philo;
+	long	last_meal;
+	long	elapsed;
 
 	philo = (t_philo *)arg;
 	wait_all_threads(philo->table);
-	set_long(&philo->philo_mutex, &philo->last_meal_time, get_time_ms(MILLISECOND));
-	increase_long(&philo->table->table_mutex, &philo->table->threads_running_nbr);
+	set_long(&philo->philo_mutex, &philo->last_meal_time,
+		get_time_ms(MILLISECOND));
+	increase_long(&philo->table->table_mutex,
+		&philo->table->threads_running_nbr);
 	write_status(philo, TAKE_FIRST_FORK, DEBUG_MODE);
 	while (!simulation_finished(philo->table))
-		usleep(200);
+	{
+		last_meal = get_long(&philo->philo_mutex, &philo->last_meal_time);
+		elapsed = get_time_ms(MILLISECOND) - last_meal;
+		if (elapsed >= philo->table->time_to_die)
+		{
+			write_status(philo, DIED, DEBUG_MODE);
+			set_bool(&philo->table->table_mutex, &philo->table->end_simulation,
+				true);
+			break ;
+		}
+		usleep(500);
+	}
 	return (NULL);
 }
 
@@ -68,8 +83,10 @@ void	*dinner_simulation(void *data)
 
 	philo = (t_philo *)data;
 	wait_all_threads(philo->table);
-	set_long(&philo->philo_mutex, &philo->last_meal_time, get_time_ms(MILLISECOND));
-	increase_long(&philo->table->table_mutex, &philo->table->threads_running_nbr);
+	set_long(&philo->philo_mutex, &philo->last_meal_time,
+		get_time_ms(MILLISECOND));
+	increase_long(&philo->table->table_mutex,
+		&philo->table->threads_running_nbr);
 	desyncrhonize_philos(philo);
 	while (!simulation_finished(philo->table))
 	{
