@@ -13,7 +13,6 @@ THREADS       := -pthread
 SRCS          := \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/parse_input.c \
-	$(SRC_DIR)/utils.c \
 	$(SRC_DIR)/philo.c
 
 # OBJECT FILES
