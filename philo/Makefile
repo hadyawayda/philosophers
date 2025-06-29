@@ -20,8 +20,8 @@ THREADS       := -pthread
 # ──────────────────────────────────────────────────────────────────────────────
 
 SRCS          := \
-	$(SRC_DIR)/actions.c \
-	$(SRC_DIR)/init.c \
+	$(SRC_DIR)/dinner.c \
+	$(SRC_DIR)/initalizer.c \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/monitor.c \
 	$(SRC_DIR)/routine.c \

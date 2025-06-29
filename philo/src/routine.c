@@ -1,76 +1,79 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   routine.c                                          :+:      :+:    :+:   */
+/*   actions.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/29 03:05:11 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 03:05:19 by hawayda          ###   ########.fr       */
+/*   Created: 2025/06/29 03:04:28 by hawayda           #+#    #+#             */
+/*   Updated: 2025/06/29 03:04:37 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static bool	done_eating(t_philo *p)
+static void	take_forks(t_philo *p)
 {
-	bool	done;
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
 
-	pthread_mutex_lock(&p->lock);
-	done = (p->rules->must_eat > -1 && p->meals >= p->rules->must_eat);
-	pthread_mutex_unlock(&p->lock);
-	return (done);
-}
-
-static bool	should_stop(t_philo *p)
-{
-	bool	stop;
-
-	pthread_mutex_lock(&p->rules->sim_lock);
-	stop = p->rules->stop;
-	pthread_mutex_unlock(&p->rules->sim_lock);
-	return (stop);
-}
-
-static void	*solo_routine(t_philo *p)
-{
-	pthread_mutex_lock(p->l_fork);
-	pthread_mutex_lock(&p->rules->print);
-	printf("0 %d has taken a fork\n", p->id);
-	pthread_mutex_unlock(&p->rules->print);
-	ft_usleep(p->rules->t_die);
-	pthread_mutex_lock(&p->rules->sim_lock);
-	p->rules->stop = true;
-	pthread_mutex_unlock(&p->rules->sim_lock);
-	pthread_mutex_lock(&p->rules->print);
-	printf("%d %d died\n", p->rules->t_die, p->id);
-	pthread_mutex_unlock(&p->rules->print);
-	pthread_mutex_unlock(p->l_fork);
-	return (NULL);
-}
-
-static void	philo_loop(t_philo *p)
-{
-	while (!should_stop(p))
+	first = p->l_fork;
+	second = p->r_fork;
+	if (p->id % 2 == 0)
 	{
-		eat(p);
-		if (done_eating(p))
+		first = p->r_fork;
+		second = p->l_fork;
+	}
+	pthread_mutex_lock(first);
+	log_state(p, "has taken a fork", false);
+	pthread_mutex_lock(second);
+	log_state(p, "has taken a fork", false);
+}
+
+void	smart_sleep(long dur, t_rules *r)
+{
+	long	start;
+
+	start = get_time_ms();
+	while (get_time_ms() - start < dur)
+	{
+		pthread_mutex_lock(&r->sim_lock);
+		if (r->stop)
+		{
+			pthread_mutex_unlock(&r->sim_lock);
 			break ;
-		log_state(p, "is sleeping", false);
-		smart_sleep(p->rules->t_sleep, p->rules);
-		think(p);
+		}
+		pthread_mutex_unlock(&r->sim_lock);
+		usleep(100);
 	}
 }
 
-void	*routine(void *arg)
+void	think(t_philo *p)
 {
-	t_philo	*p;
+	long	window;
 
-	p = arg;
-	if (p->rules->n_philo == 1)
-		return (solo_routine(p));
-	if (p->id % 2 == 0)
-		usleep(1000);
-	philo_loop(p);
-	return (NULL);
+	window = p->rules->t_die - (p->rules->t_eat + p->rules->t_sleep);
+	if (window < 0)
+		window = 0;
+	else if (window > 600)
+		window = 200;
+	else
+		window /= 2;
+	log_state(p, "is thinking", false);
+	smart_sleep(window, p->rules);
+}
+
+void	eat(t_philo *p)
+{
+	take_forks(p);
+	pthread_mutex_lock(&p->lock);
+	p->last_meal = get_time_ms();
+	pthread_mutex_unlock(&p->lock);
+	log_state(p, "is eating", false);
+	ft_usleep(p->rules->t_eat);
+	pthread_mutex_lock(&p->lock);
+	p->meals++;
+	pthread_mutex_unlock(&p->lock);
+	pthread_mutex_unlock(p->r_fork);
+	pthread_mutex_unlock(p->l_fork);
 }
