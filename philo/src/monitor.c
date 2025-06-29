@@ -5,48 +5,87 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/25 10:58:40 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 02:02:23 by hawayda          ###   ########.fr       */
+/*   Created: 2025/06/29 03:05:02 by hawayda           #+#    #+#             */
+/*   Updated: 2025/06/29 03:05:02 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static bool	philo_died(t_philo *philo)
+static bool	all_fed(t_rules *r)
 {
-	long	elapsed;
-	long	t_to_die;
+	int	i;
+	int	full;
 
-	if (get_bool(&philo->philo_mutex, &philo->full))
+	if (r->must_eat < 0)
 		return (false);
-	elapsed = get_time_ms(MILLISECOND) - get_long(&philo->philo_mutex,
-			&philo->last_meal_time);
-	t_to_die = philo->table->time_to_die / 1e3;
-	if (elapsed > t_to_die)
+	i = 0;
+	full = 0;
+	while (i < r->n_philo)
+	{
+		pthread_mutex_lock(&r->philos[i].lock);
+		if (r->philos[i].meals >= r->must_eat)
+			full++;
+		pthread_mutex_unlock(&r->philos[i].lock);
+		i++;
+	}
+	return (full == r->n_philo);
+}
+
+static bool	check_death(t_rules *r, int i)
+{
+	long	now;
+	long	last;
+	bool	first;
+
+	pthread_mutex_lock(&r->philos[i].lock);
+	last = r->philos[i].last_meal;
+	pthread_mutex_unlock(&r->philos[i].lock);
+	now = get_time_ms();
+	if (now - last >= r->t_die)
+	{
+		pthread_mutex_lock(&r->sim_lock);
+		first = !r->stop;
+		r->stop = true;
+		pthread_mutex_unlock(&r->sim_lock);
+		if (first)
+			log_state(&r->philos[i], "died", true);
 		return (true);
+	}
 	return (false);
 }
 
-void	*monitor_dinner(void *data)
+static bool	check_all(t_rules *r)
 {
-	int		i;
-	t_table	*table;
+	int	i;
 
-	table = (t_table *)data;
-	while (!all_threads_running(&table->table_mutex,
-			&table->threads_running_nbr, table->philo_nbr))
-		;
-	while (!simulation_finished(table))
+	i = 0;
+	while (i < r->n_philo)
+		if (check_death(r, i++))
+			return (true);
+	if (all_fed(r))
 	{
-		i = -1;
-		while (++i < table->philo_nbr && !simulation_finished(table))
-		{
-			if (philo_died(table->philos + i))
-			{
-				set_bool(&table->table_mutex, &table->end_simulation, true);
-				write_status(table->philos + i, DIED, DEBUG_MODE);
-			}
-		}
+		pthread_mutex_lock(&r->sim_lock);
+		r->stop = true;
+		pthread_mutex_unlock(&r->sim_lock);
+		return (true);
 	}
-	return (NULL);
+	return (false);
+}
+
+void	monitor(t_rules *r)
+{
+	while (1)
+	{
+		pthread_mutex_lock(&r->sim_lock);
+		if (r->stop)
+		{
+			pthread_mutex_unlock(&r->sim_lock);
+			break ;
+		}
+		pthread_mutex_unlock(&r->sim_lock);
+		if (check_all(r))
+			return ;
+		usleep(100);
+	}
 }
