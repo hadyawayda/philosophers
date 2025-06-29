@@ -20,16 +20,12 @@ THREADS       := -pthread
 # ──────────────────────────────────────────────────────────────────────────────
 
 SRCS          := \
-	$(SRC_DIR)/dinner.c \
-	$(SRC_DIR)/getters_setters.c \
-	$(SRC_DIR)/initialize.c \
-	$(SRC_DIR)/input_parsing.c \
+	$(SRC_DIR)/actions.c \
+	$(SRC_DIR)/init.c \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/monitor.c \
-	$(SRC_DIR)/safe_functions.c \
+	$(SRC_DIR)/routine.c \
 	$(SRC_DIR)/utils.c \
-	$(SRC_DIR)/write.c \
-	# $(SRC_DIR)/routine.c \
 
 # ──────────────────────────────────────────────────────────────────────────────
 # OBJECT FILES
