@@ -49,4 +49,7 @@ qleaks:
 norm:
 		@norminette | grep Error || true
 
+hell:
+		@valgrind --tool=helgrind ./$(NAME) 5 800 200 200 7
+
 .PHONY: all clean fclean re leaks qleaks norm
