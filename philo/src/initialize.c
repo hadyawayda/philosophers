@@ -6,11 +6,17 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 18:15:11 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/24 23:57:05 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/01 23:46:10 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void	wait_all_threads(t_table *table)
+{
+	while (!get_bool(&table->table_mutex, &table->all_threads_ready))
+		usleep(1000);
+}
 
 static void	assign_forks(t_philo *philo, t_fork *forks, int position)
 {

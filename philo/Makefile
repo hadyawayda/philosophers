@@ -78,7 +78,7 @@ qleaks:
 		@valgrind -q --leak-check=full ./$(NAME)
 
 hell:
-		@valgrind --tool=helgrind ./$(NAME) 1 800 200 200
+		@valgrind --tool=helgrind ./$(NAME) 5 800 200 150
 
 norm:
 		@norminette | grep Error || true

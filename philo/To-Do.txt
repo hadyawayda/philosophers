@@ -1,0 +1,3 @@
+Fix data lock in single philo case
+Remove exit from entire program
+Add the edge cases to my own file

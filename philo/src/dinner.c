@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 10:22:48 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 02:58:52 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/01 23:04:47 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,13 +115,13 @@ void	dinner_start(t_table *table)
 		while (++i < table->philo_nbr)
 			safe_thread_handler(&table->philos[i].thread_id, dinner_simulation,
 				&table->philos[i], CREATE);
+		safe_thread_handler(&table->monitor, monitor_dinner, table, CREATE);
+		table->start_simulation = get_time_ms(MILLISECOND);
+		set_bool(&table->table_mutex, &table->all_threads_ready, true);
+		i = -1;
+		while (++i < table->philo_nbr)
+			safe_thread_handler(&table->philos[i].thread_id, NULL, NULL, JOIN);
+		set_bool(&table->table_mutex, &table->end_simulation, true);
+		safe_thread_handler(&table->monitor, NULL, NULL, JOIN);
 	}
-	safe_thread_handler(&table->monitor, monitor_dinner, table, CREATE);
-	table->start_simulation = get_time_ms(MILLISECOND);
-	set_bool(&table->table_mutex, &table->all_threads_ready, true);
-	i = -1;
-	while (++i < table->philo_nbr)
-		safe_thread_handler(&table->philos[i].thread_id, NULL, NULL, JOIN);
-	set_bool(&table->table_mutex, &table->end_simulation, true);
-	safe_thread_handler(&table->monitor, NULL, NULL, JOIN);
 }

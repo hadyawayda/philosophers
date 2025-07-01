@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 10:58:40 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 02:02:23 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/01 23:31:27 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ void	*monitor_dinner(void *data)
 		;
 	while (!simulation_finished(table))
 	{
+		usleep(1000);
 		i = -1;
 		while (++i < table->philo_nbr && !simulation_finished(table))
 		{

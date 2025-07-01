@@ -6,17 +6,11 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 15:19:37 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 02:02:30 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/01 23:45:24 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	wait_all_threads(t_table *table)
-{
-	while (!get_bool(&table->table_mutex, &table->all_threads_ready))
-		;
-}
 
 /*
  * Monitor busy waits until
@@ -31,6 +25,8 @@ bool	all_threads_running(t_mutex *mutex, long *threads, long philo_nbr)
 	if (*threads == philo_nbr)
 		ret = true;
 	safe_mutex_handler(mutex, UNLOCK);
+	if (!ret)
+		usleep(1000);
 	return (ret);
 }
 
