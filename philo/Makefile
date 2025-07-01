@@ -12,7 +12,7 @@ OBJDIR        := objs
 
 NAME          := philo
 CC            := cc
-CFLAGS        := -g -Wall -Wextra -Werror -I $(INC_DIR)
+CFLAGS        := -g -O0 -Wall -Wextra -Werror -I $(INC_DIR)
 THREADS       := -pthread
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -29,7 +29,6 @@ SRCS          := \
 	$(SRC_DIR)/safe_functions.c \
 	$(SRC_DIR)/utils.c \
 	$(SRC_DIR)/write.c \
-	# $(SRC_DIR)/routine.c \
 
 # ──────────────────────────────────────────────────────────────────────────────
 # OBJECT FILES
@@ -79,7 +78,7 @@ qleaks:
 		@valgrind -q --leak-check=full ./$(NAME)
 
 hell:
-		@valgrind --tool=helgrind ./$(NAME) 5 800 200 200 7
+		@valgrind --tool=helgrind ./$(NAME) 1 800 200 200
 
 norm:
 		@norminette | grep Error || true
