@@ -1,3 +1,7 @@
-Fix data lock in single philo case
 Remove exit from entire program
 Add the edge cases to my own file
+
+Fix data lock in single philo case
+Check for leaks in all cases
+
+Do the bonus and do everything above for the bonus!
