@@ -12,6 +12,12 @@
 
 #include "philo.h"
 
+void	wait_all_threads(t_table *table)
+{
+	while (!get_bool(&table->table_mutex, &table->all_threads_ready))
+		usleep(1000);
+}
+
 static inline bool	is_digit(char c)
 {
 	return (c >= '0' && c <= '9');
