@@ -1,5 +1,3 @@
-Remove exit from entire program
-
 Do the bonus and do everything below for the bonus!
 
 Fix data lock in single philo case
