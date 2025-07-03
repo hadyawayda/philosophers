@@ -49,7 +49,7 @@ void philosopher_process(t_table *table, int id)
 	ph.meals_eaten = 0;
 
 	if (pthread_create(&ph.monitor, NULL, monitor_routine, &ph) != 0)
-		error_exit("pthread_create failed");
+		error_out("pthread_create failed");
 	pthread_detach(ph.monitor);
 
 	while (table->meals_limit < 0

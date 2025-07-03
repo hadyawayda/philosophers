@@ -4,10 +4,6 @@
 
 ./philo 1 200 200 200
 
-#### No philosopher dies.(leaks(bonus))
-
-./philo 2 800 200 200
-
 #### No philosopher dies.
 
 ./philo 5 800 200 200
@@ -16,11 +12,11 @@
 
 ./philo 5 800 200 200 7
 
-#### No philosopher dies.(helgrind-leaks(bonus))
+#### No philosopher dies.
 
 ./philo 4 410 200 200
 
-#### A philosopher dies. -bonus
+#### A philosopher dies.
 
 ./philo 4 310 200 200
 

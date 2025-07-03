@@ -32,7 +32,7 @@ static void init_semaphores(t_table *table)
 	                        0644,
 	                        1);
 	if (table->forks == SEM_FAILED || table->print == SEM_FAILED)
-		error_exit("Semaphore init failed");
+		error_out("Semaphore init failed");
 }
 
 /*
@@ -60,14 +60,14 @@ int main(int argc, char **argv)
 
 	table.pids = malloc(sizeof(pid_t) * table.philo_nbr);
 	if (!table.pids)
-		error_exit("Malloc failed");
+		error_out("Malloc failed");
 
 	/* spawn one process per philosopher */
 	for (i = 0; i < table.philo_nbr; i++)
 	{
 		pid_t pid = fork();
 		if (pid < 0)
-			error_exit("Fork failed");
+			error_out("Fork failed");
 		if (pid == 0)
 			philosopher_process(&table, i + 1);
 		table.pids[i] = pid;
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	{
 		pid_t pid = waitpid(-1, &status, 0);
 		if (pid < 0)
-			error_exit("waitpid failed");
+			error_out("waitpid failed");
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 		{
 			/* someone died */

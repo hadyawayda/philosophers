@@ -18,59 +18,88 @@ void	wait_all_threads(t_table *table)
 		usleep(1000);
 }
 
-static inline bool	is_digit(char c)
+/*
+** Returns true when *str is a non-empty string of decimal digits.
+*/
+static bool	is_numeric(const char *str)
 {
-	return (c >= '0' && c <= '9');
+	int	i;
+
+	i = 0;
+	if (!str || !str[0])
+		return (false);
+	while (str[i])
+	{
+		if (str[i] < '0' || str[i] > '9')
+			return (false);
+		i++;
+	}
+	return (true);
 }
 
-static const char	*validate_input(const char *str)
+long ft_atol(const char *str)
 {
-	int			len;
-	const char	*num;
+    long num;
+    int  i;
 
-	len = 0;
-	while (*str == ' ' || (*str >= 9 && *str <= 13))
-		str++;
-	if (*str == '+')
-		str++;
-	else if (*str == '-')
-		error_exit("Provide positive integers only\n");
-	if (!is_digit(*str))
-		error_exit("The input is not a correct digit\n");
-	num = str;
-	while (is_digit(*str++))
-		len++;
-	if (len > 10)
-		error_exit("The value is too big, INT_MAX is the limit");
-	return (num);
+    num = 0;
+    i = 0;
+    while (str[i])
+    {
+        num = num * 10 + (str[i] - '0');
+        i++;
+    }
+    return (num);
 }
 
-long	ft_atol(const char *s)
+static bool get_long2(const char *arg, long *dst, const char *err)
 {
-	long	num;
+    long val;
 
-	num = 0;
-	s = validate_input(s);
-	while (is_digit(*s))
-		num = (num * 10) + (*s++ - '0');
-	if (num > INT_MAX)
-		error_exit("The value is too big, INT_MAX is the limit");
-	if (*s != '\0')
-		error_exit("The input is not a correct digit\n");
-	return (num);
+    if (!is_numeric(arg))
+        return (error_out(err));
+    val = ft_atol(arg);
+    if (val < 1 || val > INT_MAX)
+        return (error_out(err));
+    *dst = val;
+    return (true);
 }
 
-void	parse_input(t_table *table, char **av)
+static bool set_time(long *field, const char *arg, const char *err)
 {
-	table->philo_nbr = ft_atol(av[1]);
-	table->time_to_die = ft_atol(av[2]) * 1000;
-	table->time_to_eat = ft_atol(av[3]) * 1000;
-	table->time_to_sleep = ft_atol(av[4]) * 1000;
-	if (table->time_to_die < 6e4 || table->time_to_eat < 6e4
-		|| table->time_to_sleep < 6e4)
-		error_exit("The timestamps must be at least 60ms.\n");
-	if (av[5])
-		table->meals_limit = ft_atol(av[5]);
-	else
-		table->meals_limit = -1;
+    long val;
+
+    if (!get_long2(arg, &val, err))
+        return (false);
+    *field = val * 1000;
+    return (true);
+}
+
+/*
+** Parse all mandatory/optional CLI arguments and fill *table.
+*/
+bool parse_input(t_table *table, char **av)
+{
+    long tmp;
+
+    if (!get_long2(av[1], &tmp, "Invalid input"))
+        return (false);
+    table->philo_nbr = (int)tmp;
+    if (!set_time(&table->time_to_die,   av[2], "Invalid input")
+        || !set_time(&table->time_to_eat,   av[3], "Invalid input")
+        || !set_time(&table->time_to_sleep, av[4], "Invalid input"))
+        return (false);
+    if (table->time_to_die   < 60000
+        || table->time_to_eat   < 60000
+        || table->time_to_sleep < 60000)
+        return (error_out("timestamps must be at least 60 ms"));
+    if (av[5])
+    {
+        if (!get_long2(av[5], &tmp, "meals_limit"))
+            return (false);
+        table->meals_limit = (int)tmp;
+    }
+    else
+        table->meals_limit = -1;
+    return (true);
 }

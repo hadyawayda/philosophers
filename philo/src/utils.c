@@ -46,7 +46,7 @@ long	get_time_ms(t_time_code time_code)
 	struct timeval	tv;
 
 	if (gettimeofday(&tv, NULL))
-		error_exit("Error in get_time_ms");
+		return (error_out("Error in get_time_ms"), -1);
 	if (SECOND == time_code)
 		return (tv.tv_sec + (tv.tv_usec / 1e6));
 	else if (MILLISECOND == time_code)
@@ -54,7 +54,7 @@ long	get_time_ms(t_time_code time_code)
 	else if (MICROSECOND == time_code)
 		return (tv.tv_sec * 1e6 + tv.tv_usec);
 	else
-		error_exit("Unknown time_code");
+		return (error_out("Unknown time_code"), -1);
 	return (1337);
 }
 
@@ -79,8 +79,8 @@ void	precise_usleep(t_table *table, long usec)
 	}
 }
 
-void	error_exit(const char *error)
+bool error_out(const char *msg)
 {
-	printf(RED "%s\n" RST, error);
-	exit(EXIT_FAILURE);
+    printf(RED "%s\n" RST, msg);
+    return (false);
 }

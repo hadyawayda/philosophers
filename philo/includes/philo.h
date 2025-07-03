@@ -133,6 +133,7 @@ struct					s_table
 	t_philo				*philos;
 };
 
+bool					error_out(const char *msg);
 bool					get_bool(t_mutex *mutex, bool *value);
 bool					simulation_finished(t_table *table);
 bool					all_threads_running(t_mutex *mutex, long *threads,
@@ -143,8 +144,7 @@ int						main(int ac, char **av);
 long					get_time_ms(t_time_code time_code);
 long					get_long(t_mutex *mutex, long *value);
 
-void					error_exit(const char *error);
-void					parse_input(t_table *table, char **av);
+bool					parse_input(t_table *table, char **av);
 void					safe_thread_handler(pthread_t *thread,
 							void *(*f)(void *), void *data, t_opcode opcode);
 void					data_init(t_table *table);

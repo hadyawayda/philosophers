@@ -20,7 +20,7 @@ long get_time_ms(void)
 	struct timeval tv;
 
 	if (gettimeofday(&tv, NULL) < 0)
-		error_exit("gettimeofday failed");
+		error_out("gettimeofday failed");
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
 }
 

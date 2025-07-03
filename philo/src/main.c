@@ -86,9 +86,10 @@ int	main(int ac, char **av)
 	t_table	table;
 
 	if (ac != 5 && ac != 6)
-		error_exit("Error: invalid arguments\n" G \
-			"Correct usage: ./philo 5 800 200 200 [5]" RST);
-	parse_input(&table, av);
+		return (error_out("Error: invalid arguments\n" G \
+			"Correct usage: ./philo 5 800 200 200 [5]" RST), -1);
+	if (!parse_input(&table, av))
+    	return (1);
 	data_init(&table);
 	dinner_start(&table);
 	clean(&table);

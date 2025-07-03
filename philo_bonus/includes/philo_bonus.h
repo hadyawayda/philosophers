@@ -81,7 +81,7 @@ typedef struct s_philo
 /*
 ** error handling
 */
-void	error_exit(const char *msg);
+void	error_out(const char *msg);
 
 /*
 ** input parsing
