@@ -31,7 +31,7 @@ long	time_since_last_meal(t_philo *ph)
 	return (diff);
 }
 
-static void	cleanup_parent(t_table *table)
+void	cleanup_parent(t_table *table)
 {
 	sem_close(table->forks);
 	sem_close(table->print);

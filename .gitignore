@@ -37,7 +37,8 @@
 *.hex
 
 # Binaries
-# philo
+# philo*
+# philo_bonus*
 
 # Debug files
 *.dSYM/

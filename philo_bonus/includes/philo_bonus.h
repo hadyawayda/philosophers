@@ -95,5 +95,7 @@ void	error_out(const char *msg);
 void	free_table_heap(t_table *table);
 void	set_dead(t_table *table);
 void	fatal_sig(int sig);
+void	cleanup_parent(t_table *table);
+void	*monitor_routine(void *arg);
 
 #endif
