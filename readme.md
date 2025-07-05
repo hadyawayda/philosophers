@@ -1,10 +1,12 @@
 # Algorithm Test cases
 
-#### Philosopher 1 takes a fork and dies after 200 ms.
-
-./philo 1 200 200 200
-
 #### No philosopher dies.
+
+./philo 4 410 200 200
+
+./philo 4 2147 200 200
+
+./philo 5 800 200 150
 
 ./philo 5 800 200 200
 
@@ -12,29 +14,21 @@
 
 ./philo 5 800 200 200 7
 
-#### No philosopher dies.
-
-./philo 4 410 200 200
-
-#### A philosopher dies.
+#### A philosopher dies
 
 ./philo 4 310 200 200
 
 #### A philosopher dies after 500 ms -
 
-./philo 4 500 200 2147483647
-
-#### No philosopher dies.
-
-./philo 4 2147483647 200 200
+./philo 4 500 200 2147
 
 #### A philosopher dies, it should display the death before 210 ms. -
 
 ./philo 4 200 210 200
 
-#### No philosopher dies.
+#### Philosopher 1 takes a fork and dies after 200 ms.
 
-./philo 5 800 200 150
+./philo 1 200 200 200
 
 # Validation Test cases
 

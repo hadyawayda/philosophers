@@ -60,48 +60,40 @@ typedef struct s_table
 	long			time_to_eat;
 	long			time_to_sleep;
 	int				meals_limit;
-	sem_t			*forks;      /* counting semaphore */
-	sem_t			*print;      /* binary semaphore for stdout */
-	long			start_time;  /* t0 in ms */
-	pid_t			*pids;       /* array of child PIDs */
-}				t_table;
+	volatile int	dead;
+	sem_t			dead_lock;
+	sem_t			*forks;
+	sem_t			*print;
+	long			start_time;
+	pid_t			*pids;
+}					t_table;
 
 /*
 ** Per-philosopher state (in each child)
 */
 typedef struct s_philo
 {
-	t_table			*table;
 	int				id;
-	long			last_meal;   /* timestamp of last eat */
+	long			last_meal;
 	int				meals_eaten;
-	pthread_t		monitor;     /* death-watcher thread */
-}				t_philo;
+	pthread_t		monitor;
+	sem_t			meal_lock;
+	t_table			*table;
+}					t_philo;
 
-/*
-** error handling
-*/
-void	error_out(const char *msg);
+int		get_dead(t_table *table);
 
-/*
-** input parsing
-*/
-void	parse_input(int argc, char **argv, t_table *table);
-
-/*
-** timing
-*/
 long	get_time_ms(void);
+long	time_since_last_meal(t_philo *ph);
+
 void	precise_usleep(long ms);
-
-/*
-** output
-*/
 void	print_status(t_table *table, int id, const char *msg);
-
-/*
-** philosopher lifecycle
-*/
 void	philosopher_process(t_table *table, int id);
+void	store_last_meal(t_philo *ph);
+void	parse_input(int argc, char **argv, t_table *table);
+void	error_out(const char *msg);
+void	free_table_heap(t_table *table);
+void	set_dead(t_table *table);
+void	fatal_sig(int sig);
 
 #endif

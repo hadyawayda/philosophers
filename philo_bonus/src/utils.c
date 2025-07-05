@@ -33,3 +33,22 @@ void precise_usleep(long ms)
 	while (get_time_ms() - start < ms)
 		usleep(100);
 }
+
+/* mark table->dead = 1 under semaphore protection */
+void	set_dead(t_table *table)
+{
+	sem_wait(&table->dead_lock);
+	table->dead = 1;
+	sem_post(&table->dead_lock);
+}
+
+/* read table->dead */
+int	get_dead(t_table *table)
+{
+	int	val;
+
+	sem_wait(&table->dead_lock);
+	val = table->dead;
+	sem_post(&table->dead_lock);
+	return (val);
+}
