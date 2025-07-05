@@ -70,7 +70,8 @@ void	*dinner_simulation(void *data)
 	t_philo	*philo;
 
 	philo = (t_philo *)data;
-	wait_all_threads(philo->table);
+	while (!get_bool(&philo->table->table_mutex, &philo->table->all_threads_ready))
+		usleep(1000);
 	set_long(&philo->philo_mutex, &philo->last_meal_time,
 		get_time_ms(MILLISECOND));
 	increase_long(&philo->table->table_mutex,

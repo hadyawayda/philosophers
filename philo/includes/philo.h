@@ -154,7 +154,6 @@ void					safe_thread_handler(pthread_t *thread,
 void					dinner_start(t_table *table);
 void					set_bool(t_mutex *mutex, bool *dest, bool value);
 void					set_long(t_mutex *mutex, long *dest, long value);
-void					wait_all_threads(t_table *table);
 void					precise_usleep(t_table *table, long usec);
 void					write_status(t_philo *philo, t_philo_status status,
 							bool debug);

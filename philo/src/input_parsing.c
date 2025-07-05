@@ -12,12 +12,6 @@
 
 #include "philo.h"
 
-void	wait_all_threads(t_table *table)
-{
-	while (!get_bool(&table->table_mutex, &table->all_threads_ready))
-		usleep(1000);
-}
-
 /*
 ** Returns true when *str is a non-empty string of decimal digits.
 */
