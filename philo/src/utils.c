@@ -63,19 +63,20 @@ void	precise_usleep(t_table *table, long usec)
 	long	start;
 	long	elapsed;
 	long	remaining;
+	long	MAX_CHUNK;
 
 	start = get_time_ms(MICROSECOND);
+	MAX_CHUNK = 1000000;
 	while (get_time_ms(MICROSECOND) - start < usec)
 	{
 		if (simulation_finished(table))
 			break ;
 		elapsed = get_time_ms(MICROSECOND) - start;
 		remaining = usec - elapsed;
-		if (remaining > 1e3)
-			usleep(remaining / 2);
+		if (remaining > MAX_CHUNK)
+			usleep(MAX_CHUNK);
 		else
-			while (get_time_ms(MICROSECOND) - start < usec)
-				;
+			usleep(remaining);
 	}
 }
 
