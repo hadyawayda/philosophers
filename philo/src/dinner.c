@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 10:22:48 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/01 23:04:47 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/09 23:50:33 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,15 +36,11 @@ void	lone_philo(t_philo *philo)
 
 	table = philo->table;
 	table->start_simulation = get_time_ms(MILLISECOND);
-	set_bool(&table->table_mutex,
-			 &table->all_threads_ready,
-			 true);
+	set_bool(&table->table_mutex, &table->all_threads_ready, true);
 	write_status(philo, TAKE_FIRST_FORK, DEBUG_MODE);
 	precise_usleep(table, table->time_to_die);
 	write_status(philo, DIED, DEBUG_MODE);
-	set_bool(&table->table_mutex,
-			 &table->end_simulation,
-			 true);
+	set_bool(&table->table_mutex, &table->end_simulation, true);
 }
 
 static void	philo_eat(t_philo *philo)
@@ -70,7 +66,8 @@ void	*dinner_simulation(void *data)
 	t_philo	*philo;
 
 	philo = (t_philo *)data;
-	while (!get_bool(&philo->table->table_mutex, &philo->table->all_threads_ready))
+	while (!get_bool(&philo->table->table_mutex,
+			&philo->table->all_threads_ready))
 		usleep(1000);
 	set_long(&philo->philo_mutex, &philo->last_meal_time,
 		get_time_ms(MILLISECOND));

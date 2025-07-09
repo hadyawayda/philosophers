@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 15:19:37 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/01 23:45:24 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/09 23:50:57 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,25 +63,25 @@ void	precise_usleep(t_table *table, long usec)
 	long	start;
 	long	elapsed;
 	long	remaining;
-	long	MAX_CHUNK;
+	long	max_chunk;
 
 	start = get_time_ms(MICROSECOND);
-	MAX_CHUNK = 1000000;
+	max_chunk = 1000000;
 	while (get_time_ms(MICROSECOND) - start < usec)
 	{
 		if (simulation_finished(table))
 			break ;
 		elapsed = get_time_ms(MICROSECOND) - start;
 		remaining = usec - elapsed;
-		if (remaining > MAX_CHUNK)
-			usleep(MAX_CHUNK);
+		if (remaining > max_chunk)
+			usleep(max_chunk);
 		else
 			usleep(remaining);
 	}
 }
 
-bool error_out(const char *msg)
+bool	error_out(const char *msg)
 {
-    printf(RED "%s\n" RST, msg);
-    return (false);
+	printf(RED "%s\n" RST, msg);
+	return (false);
 }

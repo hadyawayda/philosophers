@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   initialize.c                                       :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 18:15:11 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/01 23:46:10 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/09 23:51:29 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,11 @@ int	main(int ac, char **av)
 	t_table	table;
 
 	if (ac != 5 && ac != 6)
-		return (error_out("Error: invalid arguments\n" G \
-			"Correct usage: ./philo 5 800 200 200 [5]" RST), -1);
+		return (error_out("Error: invalid arguments\n" G
+				"Correct usage: ./philo 5 800 200 200 [5]" RST),
+			-1);
 	if (!parse_input(&table, av))
-    	return (1);
+		return (1);
 	data_init(&table);
 	dinner_start(&table);
 	clean(&table);

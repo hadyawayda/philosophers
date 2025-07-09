@@ -20,7 +20,7 @@
 
 #### A philosopher dies after 500 ms -
 
-./philo 4 500 200 2147
+./philo 4 500 200 214723232
 
 #### A philosopher dies, it should display the death before 210 ms. -
 
