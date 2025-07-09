@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:36:40 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/05 17:36:40 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/10 00:11:51 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,9 @@ static void	init_semaphores(t_table *table)
 {
 	sem_unlink("/philo_forks");
 	sem_unlink("/philo_print");
-	table->forks = sem_open("/philo_forks",
-	                        O_CREAT | O_EXCL, 0644,
-	                        table->philo_nbr);
-	table->print = sem_open("/philo_print",
-	                        O_CREAT | O_EXCL, 0644,
-	                        1);
+	table->forks = sem_open("/philo_forks", O_CREAT | O_EXCL, 0644,
+			table->philo_nbr);
+	table->print = sem_open("/philo_print", O_CREAT | O_EXCL, 0644, 1);
 	if (table->forks == SEM_FAILED || table->print == SEM_FAILED)
 		error_out("sem_open failed");
 	if (sem_init(&table->dead_lock, 0, 1) != 0)
@@ -81,9 +78,9 @@ static void	reap_philosophers(t_table *table)
 		if (pid == -1)
 		{
 			if (errno == EINTR)
-				continue;
+				continue ;
 			if (errno == ECHILD)
-				break;
+				break ;
 			error_out("waitpid failed");
 		}
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)

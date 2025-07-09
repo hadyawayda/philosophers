@@ -6,13 +6,13 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:08:34 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/05 17:08:34 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/10 00:12:02 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-t_philo	*g_philo = NULL;
+t_philo		*g_philo = NULL;
 
 /*
 ** Special case: a single philosopher can only take one fork and then dies.
@@ -50,9 +50,8 @@ static void	init_philosopher(t_philo *ph, t_table *table, int id)
 */
 static void	philosopher_loop(t_philo *ph)
 {
-	while (!get_dead(ph->table)
-	   && (ph->table->meals_limit < 0
-	    || ph->meals_eaten < ph->table->meals_limit))
+	while (!get_dead(ph->table) && (ph->table->meals_limit < 0
+			|| ph->meals_eaten < ph->table->meals_limit))
 	{
 		sem_wait(ph->table->forks);
 		print_status(ph->table, ph->id, "has taken a fork");
