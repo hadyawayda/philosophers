@@ -42,13 +42,13 @@ fclean: clean
 re: fclean all
 
 leaks:
-		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 5 800 200 200 5
+		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 4 500 200 214723232 5
 
 qleaks:
 		@valgrind -q --leak-check=full ./$(NAME)
 
 hell:
-		@valgrind --tool=helgrind ./$(NAME) 3 800 200 200 5
+		@valgrind --tool=helgrind ./$(NAME) 4 500 200 214723232 5
 
 norm:
 		@norminette | grep Error || true

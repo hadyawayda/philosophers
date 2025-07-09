@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:36:40 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 00:11:51 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/10 01:54:56 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,35 +16,17 @@ static void	init_semaphores(t_table *table)
 {
 	sem_unlink("/philo_forks");
 	sem_unlink("/philo_print");
+	sem_unlink("/philo_dead");
 	table->forks = sem_open("/philo_forks", O_CREAT | O_EXCL, 0644,
 			table->philo_nbr);
 	table->print = sem_open("/philo_print", O_CREAT | O_EXCL, 0644, 1);
-	if (table->forks == SEM_FAILED || table->print == SEM_FAILED)
+	table->dead_lock = *sem_open("/philo_dead", O_CREAT | O_EXCL, 0644, 1);
+	if (table->forks == SEM_FAILED || table->print == SEM_FAILED
+		|| &table->dead_lock == SEM_FAILED)
 		error_out("sem_open failed");
 	if (sem_init(&table->dead_lock, 0, 1) != 0)
 		error_out("sem_init dead_lock failed");
 	table->dead = 0;
-}
-
-/*
-** Spawn exactly table->philo_nbr children.
-*/
-static void	spawn_philosophers(t_table *table)
-{
-	int		i;
-	pid_t	pid;
-
-	i = 0;
-	while (i < table->philo_nbr)
-	{
-		pid = fork();
-		if (pid < 0)
-			error_out("fork failed");
-		if (pid == 0)
-			philosopher_process(table, i + 1);
-		table->pids[i] = pid;
-		i++;
-	}
 }
 
 /*
@@ -62,14 +44,11 @@ static void	unblock_forks(t_table *table)
 	}
 }
 
-/*
-** Reap all children; on first non-zero exit, mark dead and wake sleepers.
-*/
 static void	reap_philosophers(t_table *table)
 {
-	int		remaining;
 	pid_t	pid;
 	int		status;
+	int		remaining;
 
 	remaining = table->philo_nbr;
 	while (remaining > 0)
@@ -87,6 +66,7 @@ static void	reap_philosophers(t_table *table)
 		{
 			set_dead(table);
 			unblock_forks(table);
+			kill_other_procs(table, pid);
 		}
 		remaining--;
 	}

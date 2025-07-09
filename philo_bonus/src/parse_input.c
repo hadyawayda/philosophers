@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 19:27:53 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 00:12:09 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/10 01:27:45 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,23 +75,32 @@ void	print_status(t_table *table, int id, const char *msg)
 }
 
 /*
-** Thread started by every child process.
+** Thread run inside each child-process.
 ** It watches its own philosopher for starvation.
-** It also terminates as soon as some other philosopher has died
-** (table->dead becomes 1), so pthread_join() never blocks forever.
+** As soon as *any* philosopher has died, every monitor returns.
+** The first monitor that notices starvation prints “died” and then
+** terminates its entire process immediately with _exit(1); this lets
+** the parent reap that child and SIGTERM the rest before they can print.
 */
 void	*monitor_routine(void *arg)
 {
 	t_philo	*ph;
 
 	ph = (t_philo *)arg;
-	while (!get_dead(ph->table))
+	while (1)
 	{
+		if (get_dead(ph->table))
+			break ;
 		if (time_since_last_meal(ph) > ph->table->time_to_die)
 		{
-			print_status(ph->table, ph->id, "died");
-			set_dead(ph->table);
-			break ;
+			sem_wait(&ph->table->dead_lock);
+			if (ph->table->dead == 0)
+			{
+				print_status(ph->table, ph->id, "died");
+				ph->table->dead = 1;
+			}
+			sem_post(&ph->table->dead_lock);
+			_exit(1);
 		}
 		usleep(1000);
 	}

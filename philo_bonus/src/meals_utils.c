@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 18:01:55 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/05 18:01:55 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/10 01:43:35 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,5 +47,26 @@ void	free_table_heap(t_table *table)
 	{
 		free(table->pids);
 		table->pids = NULL;
+	}
+}
+
+/*
+** Spawn exactly table->philo_nbr children.
+*/
+void	spawn_philosophers(t_table *table)
+{
+	int		i;
+	pid_t	pid;
+
+	i = 0;
+	while (i < table->philo_nbr)
+	{
+		pid = fork();
+		if (pid < 0)
+			error_out("fork failed");
+		if (pid == 0)
+			philosopher_process(table, i + 1);
+		table->pids[i] = pid;
+		i++;
 	}
 }

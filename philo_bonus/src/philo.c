@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:08:34 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 00:12:02 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/10 01:26:03 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ t_philo		*g_philo = NULL;
 static void	lone_philosopher(t_table *table, int id)
 {
 	print_status(table, id, "has taken a fork");
-	precise_usleep(table->time_to_die);
+	precise_usleep(table, table->time_to_die);
 	print_status(table, id, "died");
 	exit(1);
 }
@@ -48,8 +48,10 @@ static void	init_philosopher(t_philo *ph, t_table *table, int id)
 /*
 ** The main eat–sleep–think loop for each philosopher.
 */
-static void	philosopher_loop(t_philo *ph)
+static void	philosopher_loop(t_philo *ph, t_table *table)
 {
+	if (ph->id % 2 == 0)
+		usleep(1000);
 	while (!get_dead(ph->table) && (ph->table->meals_limit < 0
 			|| ph->meals_eaten < ph->table->meals_limit))
 	{
@@ -59,12 +61,14 @@ static void	philosopher_loop(t_philo *ph)
 		print_status(ph->table, ph->id, "has taken a fork");
 		store_last_meal(ph);
 		print_status(ph->table, ph->id, "is eating");
-		precise_usleep(ph->table->time_to_eat);
+		precise_usleep(table, ph->table->time_to_eat);
 		ph->meals_eaten++;
 		sem_post(ph->table->forks);
 		sem_post(ph->table->forks);
 		print_status(ph->table, ph->id, "is sleeping");
-		precise_usleep(ph->table->time_to_sleep);
+		precise_usleep(table, ph->table->time_to_sleep);
+		if (get_dead(ph->table))
+			break ;
 		print_status(ph->table, ph->id, "is thinking");
 	}
 }
@@ -99,6 +103,6 @@ void	philosopher_process(t_table *table, int id)
 	if (n == 1)
 		lone_philosopher(table, id);
 	init_philosopher(&ph, table, id);
-	philosopher_loop(&ph);
+	philosopher_loop(&ph, table);
 	cleanup_and_exit(&ph);
 }
