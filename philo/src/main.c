@@ -5,19 +5,14 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/29 03:04:57 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 03:07:43 by hawayda          ###   ########.fr       */
+/*   Created: 2025/06/20 18:15:11 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/09 23:13:04 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static bool	valid_int(long v)
-{
-	return (v > 0 && v <= INT_MAX);
-}
-
-bool	parse_args(int ac, char **av, t_rules *r)
+void	clean(t_table *table)
 {
 	bool	ok;
 	long	tmp;
@@ -62,17 +57,69 @@ static void	wait_end(t_rules *r)
 		pthread_join(r->philos[i].thread, NULL);
 }
 
+static void	assign_forks(t_philo *philo, t_fork *forks, int position)
+{
+	int	philo_nbr;
+
+	philo_nbr = philo->table->philo_nbr;
+	philo->first_fork = &forks[(position + 1) % philo_nbr];
+	philo->second_fork = &forks[position];
+	if (philo->id % 2 == 0)
+	{
+		philo->first_fork = &forks[position];
+		philo->second_fork = &forks[(position + 1) % philo_nbr];
+	}
+}
+
+static void	philo_init(t_table *table)
+{
+	int		i;
+	t_philo	*philo;
+
+	i = -1;
+	while (++i < table->philo_nbr)
+	{
+		philo = &table->philos[i];
+		philo->id = i + 1;
+		philo->full = false;
+		philo->meals_counter = 0;
+		philo->table = table;
+		safe_mutex_handler(&philo->philo_mutex, INIT);
+		assign_forks(philo, table->forks, i);
+	}
+}
+
+void	data_init(t_table *table)
+{
+	int	i;
+
+	i = -1;
+	table->end_simulation = false;
+	table->all_threads_ready = false;
+	table->threads_running_nbr = 0;
+	table->philos = safe_malloc(sizeof(t_philo) * table->philo_nbr);
+	safe_mutex_handler(&table->table_mutex, INIT);
+	safe_mutex_handler(&table->write_mutex, INIT);
+	table->forks = safe_malloc(sizeof(t_fork) * table->philo_nbr);
+	while (++i < table->philo_nbr)
+	{
+		safe_mutex_handler(&table->forks[i].fork, INIT);
+		table->forks[i].fork_id = i;
+	}
+	philo_init(table);
+}
+
 int	main(int ac, char **av)
 {
 	t_rules	r;
 
-	if (!parse_args(ac, av, &r))
-		return (printf("invalid argument\n"), 1);
-	if (r.n_philo == 1)
-		return (one_philo_case(&r));
-	if (!init_sim(&r))
-		return (printf("Error: init failed\n"), 1);
-	wait_end(&r);
-	free_all(&r);
+	if (ac != 5 && ac != 6)
+		return (error_out("Error: invalid arguments\n" G \
+			"Correct usage: ./philo 5 800 200 200 [5]" RST), -1);
+	if (!parse_input(&table, av))
+    	return (1);
+	data_init(&table);
+	dinner_start(&table);
+	clean(&table);
 	return (0);
 }

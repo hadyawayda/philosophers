@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/27 19:23:48 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 03:15:56 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/09 23:12:27 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,53 +55,47 @@ typedef enum e_philo_status
 */
 typedef struct s_table
 {
-	int			philo_nbr;
-	long		time_to_die;
-	long		time_to_eat;
-	long		time_to_sleep;
-	int			meals_limit;
-	sem_t		*forks;
-	sem_t		*print;
-	long		start_time;
-	pid_t		*pids;
-}				t_table;
+	int				philo_nbr;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	int				meals_limit;
+	volatile int	dead;
+	sem_t			dead_lock;
+	sem_t			*forks;
+	sem_t			*print;
+	long			start_time;
+	pid_t			*pids;
+}					t_table;
 
 /*
 ** Per-philosopher state (in each child)
 */
 typedef struct s_philo
 {
-	t_table		*table;
-	int			id;
-	long		last_meal;
-	int			meals_eaten;
-	pthread_t	monitor;
-}				t_philo;
+	int				id;
+	long			last_meal;
+	int				meals_eaten;
+	pthread_t		monitor;
+	sem_t			meal_lock;
+	t_table			*table;
+}					t_philo;
 
-/*
-** error handling
-*/
-void			error_exit(const char *msg);
+int		get_dead(t_table *table);
 
-/*
-** input parsing
-*/
-void			parse_input(int argc, char **argv, t_table *table);
+long	get_time_ms(void);
+long	time_since_last_meal(t_philo *ph);
 
-/*
-** timing
-*/
-long			get_time_ms(void);
-void			precise_usleep(long ms);
-
-/*
-** output
-*/
-void			print_status(t_table *table, int id, const char *msg);
-
-/*
-** philosopher lifecycle
-*/
-void			philosopher_process(t_table *table, int id);
+void	precise_usleep(long ms);
+void	print_status(t_table *table, int id, const char *msg);
+void	philosopher_process(t_table *table, int id);
+void	store_last_meal(t_philo *ph);
+void	parse_input(int argc, char **argv, t_table *table);
+void	error_out(const char *msg);
+void	free_table_heap(t_table *table);
+void	set_dead(t_table *table);
+void	fatal_sig(int sig);
+void	cleanup_parent(t_table *table);
+void	*monitor_routine(void *arg);
 
 #endif

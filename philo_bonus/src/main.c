@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/27 19:27:26 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 03:20:24 by hawayda          ###   ########.fr       */
+/*   Created: 2025/07/05 17:36:40 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/09 23:12:14 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,36 +16,33 @@ static void	init_semaphores(t_table *table)
 {
 	sem_unlink("/philo_forks");
 	sem_unlink("/philo_print");
-	table->forks = sem_open("/philo_forks", O_CREAT | O_EXCL, 0644,
-			table->philo_nbr);
-	table->print = sem_open("/philo_print", O_CREAT | O_EXCL, 0644, 1);
+	table->forks = sem_open("/philo_forks",
+	                        O_CREAT | O_EXCL, 0644,
+	                        table->philo_nbr);
+	table->print = sem_open("/philo_print",
+	                        O_CREAT | O_EXCL, 0644,
+	                        1);
 	if (table->forks == SEM_FAILED || table->print == SEM_FAILED)
-		error_exit("Semaphore init failed");
+		error_out("sem_open failed");
+	if (sem_init(&table->dead_lock, 0, 1) != 0)
+		error_out("sem_init dead_lock failed");
+	table->dead = 0;
 }
 
-static void	cleanup(t_table *table)
-{
-	sem_close(table->forks);
-	sem_close(table->print);
-	sem_unlink("/philo_forks");
-	sem_unlink("/philo_print");
-	free(table->pids);
-}
-
+/*
+** Spawn exactly table->philo_nbr children.
+*/
 static void	spawn_philosophers(t_table *table)
 {
 	int		i;
 	pid_t	pid;
 
 	i = 0;
-	table->pids = malloc(sizeof(pid_t) * table->philo_nbr);
-	if (!table->pids)
-		error_exit("Malloc failed");
 	while (i < table->philo_nbr)
 	{
 		pid = fork();
 		if (pid < 0)
-			error_exit("Fork failed");
+			error_out("fork failed");
 		if (pid == 0)
 			philosopher_process(table, i + 1);
 		table->pids[i] = pid;
@@ -53,33 +50,54 @@ static void	spawn_philosophers(t_table *table)
 	}
 }
 
-static void	reap_philosophers(t_table *table)
+/*
+** Post twice-per-philosopher to unblock any sem_waits after death.
+*/
+static void	unblock_forks(t_table *table)
 {
-	int		finished;
-	int		status;
-	pid_t	pid;
-	int		i;
+	int	i;
 
-	finished = 0;
-	while (finished < table->philo_nbr)
+	i = 0;
+	while (i < table->philo_nbr * 2)
 	{
-		pid = waitpid(-1, &status, 0);
-		if (pid < 0)
-			error_exit("waitpid failed");
-		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-		{
-			i = 0;
-			while (i < table->philo_nbr)
-			{
-				kill(table->pids[i], SIGTERM);
-				i++;
-			}
-			break ;
-		}
-		finished++;
+		sem_post(table->forks);
+		i++;
 	}
 }
 
+/*
+** Reap all children; on first non-zero exit, mark dead and wake sleepers.
+*/
+static void	reap_philosophers(t_table *table)
+{
+	int		remaining;
+	pid_t	pid;
+	int		status;
+
+	remaining = table->philo_nbr;
+	while (remaining > 0)
+	{
+		pid = waitpid(-1, &status, 0);
+		if (pid == -1)
+		{
+			if (errno == EINTR)
+				continue;
+			if (errno == ECHILD)
+				break;
+			error_out("waitpid failed");
+		}
+		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		{
+			set_dead(table);
+			unblock_forks(table);
+		}
+		remaining--;
+	}
+}
+
+/*
+** main(): parse, init, fork & reap, then clean up.
+*/
 int	main(int argc, char **argv)
 {
 	t_table	table;
@@ -87,8 +105,11 @@ int	main(int argc, char **argv)
 	parse_input(argc, argv, &table);
 	init_semaphores(&table);
 	table.start_time = get_time_ms();
+	table.pids = malloc(sizeof(pid_t) * table.philo_nbr);
+	if (!table.pids)
+		error_out("malloc failed");
 	spawn_philosophers(&table);
 	reap_philosophers(&table);
-	cleanup(&table);
+	cleanup_parent(&table);
 	return (0);
 }

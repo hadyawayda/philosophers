@@ -5,73 +5,101 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/29 03:15:45 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 03:18:17 by hawayda          ###   ########.fr       */
+/*   Created: 2025/07/05 17:08:34 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/09 23:11:55 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-void	print_status(t_table *table, int id, const char *msg)
+t_philo	*g_philo = NULL;
+
+/*
+** Special case: a single philosopher can only take one fork and then dies.
+*/
+static void	lone_philosopher(t_table *table, int id)
 {
-	sem_wait(table->print);
-	printf("%ld %d %s\n", get_time_ms() - table->start_time, id, msg);
-	sem_post(table->print);
+	print_status(table, id, "has taken a fork");
+	precise_usleep(table->time_to_die);
+	print_status(table, id, "died");
+	exit(1);
 }
 
-static void	*monitor_routine(void *arg)
+/*
+** Initialize the t_philo struct, set up semaphores and monitor thread.
+*/
+static void	init_philosopher(t_philo *ph, t_table *table, int id)
 {
-	t_philo	*ph;
+	int	ret;
 
-	ph = arg;
-	while (1)
-	{
-		if (get_time_ms() - ph->last_meal > ph->table->time_to_die)
-		{
-			print_status(ph->table, ph->id, "died");
-			exit(1);
-		}
-		usleep(1000);
-	}
-	return (NULL);
-}
-
-static void	prepare_and_take_forks(t_table *table, t_philo *ph, int id)
-{
 	ph->table = table;
 	ph->id = id;
-	ph->last_meal = get_time_ms();
 	ph->meals_eaten = 0;
-	if (pthread_create(&ph->monitor, NULL, monitor_routine, ph) != 0)
-		error_exit("pthread_create failed");
-	pthread_detach(ph->monitor);
-	sem_wait(table->forks);
-	print_status(table, id, "has taken a fork");
-	sem_wait(table->forks);
-	print_status(table, id, "has taken a fork");
-	ph->last_meal = get_time_ms();
-	print_status(table, id, "is eating");
+	g_philo = ph;
+	signal(SIGTERM, fatal_sig);
+	if (sem_init(&ph->meal_lock, 0, 1) != 0)
+		error_out("sem_init failed");
+	store_last_meal(ph);
+	ret = pthread_create(&ph->monitor, NULL, monitor_routine, ph);
+	if (ret != 0)
+		error_out("pthread_create failed");
 }
 
-static void	eat_sleep_think_and_exit(t_table *table, t_philo *ph, int id)
+/*
+** The main eat–sleep–think loop for each philosopher.
+*/
+static void	philosopher_loop(t_philo *ph)
 {
-	while (table->meals_limit < 0 || ph->meals_eaten < table->meals_limit)
+	while (!get_dead(ph->table)
+	   && (ph->table->meals_limit < 0
+	    || ph->meals_eaten < ph->table->meals_limit))
 	{
-		precise_usleep(table->time_to_eat);
+		sem_wait(ph->table->forks);
+		print_status(ph->table, ph->id, "has taken a fork");
+		sem_wait(ph->table->forks);
+		print_status(ph->table, ph->id, "has taken a fork");
+		store_last_meal(ph);
+		print_status(ph->table, ph->id, "is eating");
+		precise_usleep(ph->table->time_to_eat);
 		ph->meals_eaten++;
-		sem_post(table->forks);
-		sem_post(table->forks);
-		print_status(table, id, "is sleeping");
-		precise_usleep(table->time_to_sleep);
-		print_status(table, id, "is thinking");
+		sem_post(ph->table->forks);
+		sem_post(ph->table->forks);
+		print_status(ph->table, ph->id, "is sleeping");
+		precise_usleep(ph->table->time_to_sleep);
+		print_status(ph->table, ph->id, "is thinking");
 	}
+}
+
+/*
+** Clean up semaphores, join monitor, free and exit with correct status.
+*/
+static void	cleanup_and_exit(t_philo *ph)
+{
+	int	dead;
+
+	pthread_join(ph->monitor, NULL);
+	sem_destroy(&ph->meal_lock);
+	free_table_heap(ph->table);
+	sem_close(ph->table->forks);
+	sem_close(ph->table->print);
+	dead = get_dead(ph->table);
+	if (dead != 0)
+		exit(1);
 	exit(0);
 }
 
+/*
+** Entry point for each child process (one philosopher).
+*/
 void	philosopher_process(t_table *table, int id)
 {
 	t_philo	ph;
+	int		n;
 
-	prepare_and_take_forks(table, &ph, id);
-	eat_sleep_think_and_exit(table, &ph, id);
+	n = table->philo_nbr;
+	if (n == 1)
+		lone_philosopher(table, id);
+	init_philosopher(&ph, table, id);
+	philosopher_loop(&ph);
+	cleanup_and_exit(&ph);
 }

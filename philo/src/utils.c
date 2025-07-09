@@ -5,80 +5,83 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/29 03:05:27 by hawayda           #+#    #+#             */
-/*   Updated: 2025/06/29 03:07:49 by hawayda          ###   ########.fr       */
+/*   Created: 2025/06/17 15:19:37 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/09 23:12:59 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_atoi_pos(const char *s, bool *ok)
+/*
+ * Monitor busy waits until
+ * all threads are not running
+ */
+bool	all_threads_running(t_mutex *mutex, long *threads, long philo_nbr)
 {
-	long	res;
+	bool	ret;
 
-	res = 0;
-	while (*s == ' ' || (*s >= 9 && *s <= 13))
-		s++;
-	if (*s == '+')
-		s++;
-	if (*s < '0' || *s > '9')
-		return (*ok = false, 0);
-	while (*s >= '0' && *s <= '9')
-	{
-		res = res * 10 + (*s - '0');
-		if (res > INT_MAX)
-			return (*ok = false, 0);
-		s++;
-	}
-	if (*s != '\0')
-		return (*ok = false, 0);
-	return ((int)res);
+	ret = false;
+	safe_mutex_handler(mutex, LOCK);
+	if (*threads == philo_nbr)
+		ret = true;
+	safe_mutex_handler(mutex, UNLOCK);
+	if (!ret)
+		usleep(1000);
+	return (ret);
 }
 
-long	get_time_ms(void)
+/*
+ * Increase threads running
+ * to synchronize with the monitor
+ */
+void	increase_long(t_mutex *mutex, long *value)
+{
+	safe_mutex_handler(mutex, LOCK);
+	(*value)++;
+	safe_mutex_handler(mutex, UNLOCK);
+}
+
+long	get_time_ms(t_time_code time_code)
 {
 	struct timeval	tv;
 
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+	if (gettimeofday(&tv, NULL))
+		return (error_out("Error in get_time_ms"), -1);
+	if (SECOND == time_code)
+		return (tv.tv_sec + (tv.tv_usec / 1e6));
+	else if (MILLISECOND == time_code)
+		return (tv.tv_sec * 1e3 + tv.tv_usec / 1e3);
+	else if (MICROSECOND == time_code)
+		return (tv.tv_sec * 1e6 + tv.tv_usec);
+	else
+		return (error_out("Unknown time_code"), -1);
+	return (1337);
 }
 
 void	ft_usleep(long ms)
 {
 	long	start;
+	long	elapsed;
+	long	remaining;
+	long	MAX_CHUNK;
 
-	start = get_time_ms();
-	while (get_time_ms() - start < ms)
-		usleep(100);
+	start = get_time_ms(MICROSECOND);
+	MAX_CHUNK = 1000000;
+	while (get_time_ms(MICROSECOND) - start < usec)
+	{
+		if (simulation_finished(table))
+			break ;
+		elapsed = get_time_ms(MICROSECOND) - start;
+		remaining = usec - elapsed;
+		if (remaining > MAX_CHUNK)
+			usleep(MAX_CHUNK);
+		else
+			usleep(remaining);
+	}
 }
 
-void	log_state(t_philo *p, const char *msg, bool death)
+bool error_out(const char *msg)
 {
-	long	ts;
-
-	pthread_mutex_lock(&p->rules->sim_lock);
-	if (!p->rules->stop || death)
-	{
-		ts = get_time_ms() - p->rules->start;
-		pthread_mutex_lock(&p->rules->print);
-		printf("%ld %d %s\n", ts, p->id, msg);
-		pthread_mutex_unlock(&p->rules->print);
-	}
-	pthread_mutex_unlock(&p->rules->sim_lock);
-}
-
-void	free_all(t_rules *r)
-{
-	int	i;
-
-	i = -1;
-	while (++i < r->n_philo)
-	{
-		pthread_mutex_destroy(&r->forks[i]);
-		pthread_mutex_destroy(&r->philos[i].lock);
-	}
-	pthread_mutex_destroy(&r->print);
-	pthread_mutex_destroy(&r->sim_lock);
-	free(r->forks);
-	free(r->philos);
+    printf(RED "%s\n" RST, msg);
+    return (false);
 }

@@ -12,7 +12,7 @@ OBJDIR        := objs
 
 NAME          := philo
 CC            := cc
-CFLAGS        := -g -Wall -Wextra -Werror -I $(INC_DIR)
+CFLAGS        := -g -O0 -Wall -Wextra -Werror -I $(INC_DIR)
 THREADS       := -pthread
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -21,7 +21,8 @@ THREADS       := -pthread
 
 SRCS          := \
 	$(SRC_DIR)/dinner.c \
-	$(SRC_DIR)/initalizer.c \
+	$(SRC_DIR)/getters_setters.c \
+	$(SRC_DIR)/input_parsing.c \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/monitor.c \
 	$(SRC_DIR)/routine.c \
@@ -69,13 +70,13 @@ re: fclean all
 .PHONY: all clean fclean re
 
 leaks:
-		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME)
+		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 4 200 210 200 7
 
 qleaks:
 		@valgrind -q --leak-check=full ./$(NAME)
 
 hell:
-		@valgrind --tool=helgrind ./$(NAME) 5 800 200 200 7
+		@valgrind --tool=helgrind ./$(NAME) 4 200 210 200 7
 
 norm:
 		@norminette | grep Error || true

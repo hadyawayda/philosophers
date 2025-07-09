@@ -12,6 +12,7 @@ THREADS       := -pthread
 # SOURCE FILES
 SRCS          := \
 	$(SRC_DIR)/main.c \
+	$(SRC_DIR)/meals_utils.c \
 	$(SRC_DIR)/parse_input.c \
 	$(SRC_DIR)/philo.c
 
@@ -40,10 +41,13 @@ fclean: clean
 re: fclean all
 
 leaks:
-		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME)
+		@valgrind --leak-check=full --show-leak-kinds=all ./$(NAME) 5 800 200 200 5
 
 qleaks:
 		@valgrind -q --leak-check=full ./$(NAME)
+
+hell:
+		@valgrind --tool=helgrind ./$(NAME) 3 800 200 200 5
 
 norm:
 		@norminette | grep Error || true
