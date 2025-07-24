@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 12:36:16 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/24 12:36:16 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/24 21:24:04 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ static void	init_philosopher(t_philo *ph, t_table *table, int id)
 	ret = pthread_create(&ph->monitor, NULL, monitor_routine, ph);
 	if (ret != 0)
 		error_out("pthread_create failed");
-	pthread_detach(ph->monitor);
 }
 
 /*
@@ -81,6 +80,9 @@ static void	cleanup_and_exit(t_philo *ph)
 {
 	int	dead;
 
+	pthread_cancel(ph->monitor);
+	pthread_join(ph->monitor, NULL);
+	sem_destroy(&ph->meal_lock);
 	free_table_heap(ph->table);
 	sem_close(ph->table->forks);
 	sem_close(ph->table->print);

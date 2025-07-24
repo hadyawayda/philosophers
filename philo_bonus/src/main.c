@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 12:35:59 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/24 12:35:59 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/24 21:23:32 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static void	init_semaphores(t_table *table)
 	table->limit = sem_open("/philo_limit", O_CREAT | O_EXCL, 0644,
 			limit_tokens);
 	if (table->forks == SEM_FAILED || table->print == SEM_FAILED
-		|| &table->dead_lock == SEM_FAILED || table->limit == SEM_FAILED)
+		|| table->limit == SEM_FAILED)
 		error_out("sem_open failed");
 	if (sem_init(&table->dead_lock, 0, 1) != 0)
 		error_out("sem_init dead_lock failed");
