@@ -1,8 +1,0 @@
-Do the bonus and do everything below for the bonus!
-
-Fix data lock in single philo case
-Check for leaks in all cases
-
-Sometimes a philo is dying in these cases:
-
-./philo_bonus 4 410 200 200
