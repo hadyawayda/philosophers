@@ -50,17 +50,7 @@ void	parse_input(int argc, char **argv, t_table *table)
 */
 void	fatal_sig(int sig)
 {
-	extern t_philo	*g_philo;
-
 	(void)sig;
-	if (!g_philo)
-		_exit(0);
-	pthread_cancel(g_philo->monitor);
-	pthread_join(g_philo->monitor, NULL);
-	sem_destroy(&g_philo->meal_lock);
-	free_table_heap(g_philo->table);
-	sem_close(g_philo->table->forks);
-	sem_close(g_philo->table->print);
 	_exit(0);
 }
 
@@ -85,13 +75,16 @@ void	print_status(t_table *table, int id, const char *msg)
 void	*monitor_routine(void *arg)
 {
 	t_philo	*ph;
+	long	interval;
 
 	ph = (t_philo *)arg;
-	while (1)
+	while (!get_dead(ph->table))
 	{
-		if (get_dead(ph->table))
-			break ;
-		if (time_since_last_meal(ph) > ph->table->time_to_die)
+		/* read last_meal safely – but **only once** */
+		sem_wait(&ph->meal_lock);
+		interval = get_time_ms() - ph->last_meal;
+		sem_post(&ph->meal_lock);
+		if (interval > ph->table->time_to_die)
 		{
 			sem_wait(&ph->table->dead_lock);
 			if (ph->table->dead == 0)
