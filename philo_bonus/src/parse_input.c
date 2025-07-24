@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_input.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/27 19:27:53 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 01:27:45 by hawayda          ###   ########.fr       */
+/*   Created: 2025/07/24 12:36:11 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/24 12:36:11 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,6 @@ void	*monitor_routine(void *arg)
 	ph = (t_philo *)arg;
 	while (!get_dead(ph->table))
 	{
-		/* read last_meal safely – but **only once** */
 		sem_wait(&ph->meal_lock);
 		interval = get_time_ms() - ph->last_meal;
 		sem_post(&ph->meal_lock);

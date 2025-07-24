@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/27 19:23:48 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 01:55:35 by hawayda          ###   ########.fr       */
+/*   Created: 2025/07/24 12:35:52 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/24 12:35:52 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ typedef struct s_table
 	sem_t			dead_lock;
 	sem_t			*forks;
 	sem_t			*print;
+	sem_t			*limit;
 	long			start_time;
 	pid_t			*pids;
 }					t_table;

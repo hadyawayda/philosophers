@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/05 17:08:34 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 01:26:03 by hawayda          ###   ########.fr       */
+/*   Created: 2025/07/24 12:36:16 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/24 12:36:16 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ static void	philosopher_loop(t_philo *ph, t_table *table)
 	while (!get_dead(ph->table) && (ph->table->meals_limit < 0
 			|| ph->meals_eaten < ph->table->meals_limit))
 	{
+		sem_wait(ph->table->limit);
 		sem_wait(ph->table->forks);
 		print_status(ph->table, ph->id, "has taken a fork");
 		sem_wait(ph->table->forks);
@@ -60,9 +61,11 @@ static void	philosopher_loop(t_philo *ph, t_table *table)
 		store_last_meal(ph);
 		print_status(ph->table, ph->id, "is eating");
 		precise_usleep(table, ph->table->time_to_eat);
+		store_last_meal(ph);
 		ph->meals_eaten++;
 		sem_post(ph->table->forks);
 		sem_post(ph->table->forks);
+		sem_post(ph->table->limit);
 		print_status(ph->table, ph->id, "is sleeping");
 		precise_usleep(table, ph->table->time_to_sleep);
 		if (get_dead(ph->table))
@@ -81,6 +84,7 @@ static void	cleanup_and_exit(t_philo *ph)
 	free_table_heap(ph->table);
 	sem_close(ph->table->forks);
 	sem_close(ph->table->print);
+	sem_close(ph->table->limit);
 	dead = get_dead(ph->table);
 	if (dead != 0)
 		exit(1);

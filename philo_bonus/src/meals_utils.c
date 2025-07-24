@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   meals_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hawayda <hawayda@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/05 18:01:55 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/10 01:43:35 by hawayda          ###   ########.fr       */
+/*   Created: 2025/07/24 12:36:05 by hawayda           #+#    #+#             */
+/*   Updated: 2025/07/24 12:36:05 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,10 @@ void	cleanup_parent(t_table *table)
 {
 	sem_close(table->forks);
 	sem_close(table->print);
+	sem_close(table->limit);
 	sem_unlink("/philo_forks");
 	sem_unlink("/philo_print");
+	sem_unlink("/philo_limit");
 	sem_destroy(&table->dead_lock);
 	free(table->pids);
 }
