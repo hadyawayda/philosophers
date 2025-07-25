@@ -44,12 +44,12 @@ static void	handle_mutex_error(t_opcode opcode, int status)
 
 void	safe_mutex_handler(t_mutex *mutex, t_opcode opcode)
 {
-	if (LOCK == opcode)
+	if (INIT == opcode)
+		handle_mutex_error(opcode, pthread_mutex_init(mutex, NULL));
+	else if (LOCK == opcode)
 		handle_mutex_error(opcode, pthread_mutex_lock(mutex));
 	else if (UNLOCK == opcode)
 		handle_mutex_error(opcode, pthread_mutex_unlock(mutex));
-	else if (INIT == opcode)
-		handle_mutex_error(opcode, pthread_mutex_init(mutex, NULL));
 	else if (DESTROY == opcode)
 		handle_mutex_error(opcode, pthread_mutex_destroy(mutex));
 	else

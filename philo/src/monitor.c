@@ -21,7 +21,7 @@ void	desyncrhonize_philos(t_philo *philo)
 	}
 	else
 	{
-		if (philo->id % 2)
+		if (philo->id % 2 == 1)
 			philo_think(philo, true);
 	}
 }
