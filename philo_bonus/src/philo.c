@@ -57,7 +57,6 @@ static void	philosopher_loop(t_philo *ph, t_table *table)
 		print_status(ph->table, ph->id, "has taken a fork");
 		sem_wait(ph->table->forks);
 		print_status(ph->table, ph->id, "has taken a fork");
-		store_last_meal(ph);
 		print_status(ph->table, ph->id, "is eating");
 		precise_usleep(table, ph->table->time_to_eat);
 		store_last_meal(ph);
