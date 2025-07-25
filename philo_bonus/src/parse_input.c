@@ -6,7 +6,7 @@
 /*   By: hawayda <hawayda@student.42beirut.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/24 12:36:11 by hawayda           #+#    #+#             */
-/*   Updated: 2025/07/24 12:36:11 by hawayda          ###   ########.fr       */
+/*   Updated: 2025/07/25 17:11:14 by hawayda          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	parse_input(int argc, char **argv, t_table *table)
 		error_out("Usage: ./philo_bonus "
 			"number_of_philosophers time_to_die time_to_eat "
 			"time_to_sleep [nbr_of_meals]");
-	table->philo_nbr = atoi(argv[1]);
+	table->philo_nbr = atol(argv[1]);
 	table->time_to_die = atol(argv[2]);
 	table->time_to_eat = atol(argv[3]);
 	table->time_to_sleep = atol(argv[4]);
